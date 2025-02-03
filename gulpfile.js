@@ -29,11 +29,6 @@ const paths = {
             "public/assets/js/vendor/bootstrap.js",
             "public/assets/js/vendor/slick.min.js",
             "public/assets/js/vendor/spin.min.js",
-            "public/assets/js/plugins.js",
-            "public/assets/js/bigFlipper.js",
-            "public/assets/js/hostInfo.js",
-            "public/assets/js/toolTips.js",
-            "public/assets/js/app.js",
         ],
         lint: [
             "public/assets/js/**/*.js",
@@ -133,7 +128,7 @@ function scripts() {
 
 function watch() {
     browserSync.init({
-        proxy: "https://web-fun.ddev.site/",
+        proxy: "https://krate.ddev.site/",
         notify: false,
         files: [
             paths.styles.dest + '/**/*.css',
@@ -163,13 +158,23 @@ function clean(cb) {
     cb();
 }
 
+function clearCache(cb) {
+    // Clear gulp cache
+    if (gulp.src.cache) {
+        gulp.src.cache.caches = {};
+    }
+    cb();
+}
+
 exports.style = style;
 exports.clean = clean;
 exports.imageminify = imageminify;
 exports.scripts = gulp.series(lint, scripts);
 exports.watch = watch;
+exports.clearCache = clearCache;
 exports.default = gulp.series(
     clean,
+    clearCache,
     gulp.parallel(style, gulp.series(lint, scripts)),
     watch
 );

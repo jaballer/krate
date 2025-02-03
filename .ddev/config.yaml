@@ -1,4 +1,4 @@
-name: web-fun
+name: krate
 type: php
 docroot: public
 php_version: "7.4"

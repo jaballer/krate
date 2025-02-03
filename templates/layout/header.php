@@ -39,27 +39,15 @@
 		?>
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
+    <!-- <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>"> -->
+    <link rel="stylesheet" href="/assets/css/style.css?">
     <link rel="stylesheet" href="<?php echo STYLES_PATH; ?>/public.css">
-    <link rel="stylesheet" href="<?php echo STYLES_PATH; ?>/simple.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <!-- TinyMCE -->
     <script src="https://cdn.tiny.cloud/1/9b6vdo6p51qb89toe164crjl7qyvmjbnp3qyv43i0d4wp3mw/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
-    <!-- Add dark mode styles -->
-    <style>
- 
-    </style>
 </head>
 
 <body class="<?php echo getSetting('dark_mode', false) ? 'dark-mode' : ''; ?>">
-
-<?php
-	if ($isAdmin) {
-		include($_SERVER['DOCUMENT_ROOT'] . '/../templates/components/nav_admins.php');
-	}
-?>
 
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -76,8 +64,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <?php include($_SERVER['DOCUMENT_ROOT'] . '/../templates/components/nav_main.php'); ?>
-
-            <!-- Update navbar text to reflect user status -->
             
             <span>
                 <?php if ($isAdmin): ?>

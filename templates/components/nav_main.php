@@ -1,9 +1,7 @@
 <?php
 // type of array
 $navItems = [
-        ['href' => '/page.php?subject_id=1', 'label' => 'About'],
-        ['href' => '/page.php?subject_id=3', 'label' => 'Documentation'],
-        ['href' => '/page.php?subject_id=5', 'label' => 'Resources'],
+
         ['href' => '/contact-us.php', 'label' => 'Contact Us'],
     ];
 ?>

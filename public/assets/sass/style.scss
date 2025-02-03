@@ -1,68 +1,10 @@
 /* Import Bootstrap */
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 
-/* Variables */
-// $white: #fff !default;
-// $gray-100: #f8f9fa !default;
-// $gray-200: #e9ecef !default;
-// $gray-300: #dee2e6 !default;
-// $gray-400: #ced4da !default;
-// $gray-500: #adb5bd !default;
-// $gray-600: #6c757d !default;
-// $gray-700: #495057 !default;
-// $gray-800: #343a40 !default;
-// $gray-900: #212529 !default;
-// $black: #000 !default;
-
-// $blue: #007bff !default;
-// $indigo: #6610f2 !default;
-// $purple: #6f42c1 !default;
-// $pink: #e83e8c !default;
-// $red: #dc3545 !default;
-// $orange: #fd7e14 !default;
-// $yellow: #FFC422;
-// $green: #28a745 !default;
-// $teal: #20c997 !default;
-// $cyan: #17a2b8 !default;
-
-// $success: $green !default;
-// $info: $cyan !default; 
-// $warning: $yellow !default;
-// $danger: $red !default;
-// $light: $gray-100 !default;
-// $dark: $gray-800 !default;
-
-//$primary: $dark;
-//$secondary: $yellow;
-
-/* Import base and other partials */
-@import "base";
-@import "navigation";
-@import "nav-icon";
-@import "hero";
-@import "forms";
-@import "elements/elements";
-@import "components/components";
-@import "templates/templates";
-@import "layouts/layouts";
-@import "pages/pages";
-@import "svg-icon-sprite";
-@import "settings";
-
 
 /* Your styles */
 body {
   font-family: 'Gudea', sans-serif;
-}
-
-section {
-  hgroup, .hgroup {
-    @extend %margin-bottom;
-  }
-
-  h1 {
-    margin-bottom: calc($global-margin / 2);
-  }
 }
 
 .close-btn {
@@ -84,130 +26,9 @@ section {
   }
 }
 
-article {
-  @extend %margin-bottom;
-
-  footer {
-    border-top: $global-border;
-  }
-}
 
 .tagline {
   color: black;
-}
-
-// Todo: This is where I'm testing the hover link effect
-.has-hover-effect {
-  position: relative;
-  color: $color-accent;
-  text-decoration: none !important;
-
-  &:before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 5px;
-    bottom: -5px;
-    left: 0;
-    background-color: #000;
-    visibility: hidden;
-    @include scaleX($val: 0);
-    @extend %transition;
-  }
-
-  &:hover:before {
-    visibility: visible;
-    @include scaleX($val: 1);
-  }
-}
-
-// ============================================================
-// Popup Styles
-// ============================================================
-
-#pop-up {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-  z-index: 10000;
-
-  #close-btn {
-    position: absolute;
-    display: inline-block;
-    top: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-    text-align: center;
-    z-index: 999;
-
-    &:hover {
-      cursor: pointer;
-      background-color: black;
-    }
-  }
-
-  #img-container {
-    box-sizing: border-box;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -60px; // horizontally centers
-    margin-left: -60px;
-  }
-
-  img {
-    height: auto;
-  }
-
-  @include medium-screen {
-    #close-btn {
-      top: 0;
-      right: 0;
-    }
-    margin-top: -160px; // make look pretty
-    margin-left: -160px;
-    img {
-      max-width: 320px;
-    }
-  }
-  @include small-screen-landscape {
-    #close-btn {
-      width: 25px;
-      height: 25px;
-      line-height: 25px;
-      top: 0;
-      right: 2px;
-    }
-    #img-container {
-      margin-top: 0;
-      padding: 0;
-      top: 0;
-      width: 102px;
-    }
-  }
-}
-
-.db-menu {
-  ul {
-    li {
-      display: inline-block;
-    }
-  }
-}
-
-.svg-icon-list {
-  li {
-    display: inline-block;
-    padding: 20px;
-    border: $global-border;
-  }
 }
 
 .card .fas {
@@ -218,39 +39,7 @@ article {
   }
 }
 
-.card.bg-secondary {
-  .fas {
-    &:hover {
-      color: $light;
-    }
-  }
-}
 
-#rendered-sections-list .active-nav {
-  font-weight: bold;
-}
-
-#scroll-to-top {
-  padding: 10px;
-  border: solid thin #eee;
-  display: none;
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-// ============================================================
-// Page: Contact Search Results
-// ============================================================
-.search-results-page{
-  .alert.alert-info{
-    // last paragraph
-    p:last-child{
-      margin-bottom: 0;
-    }
-  }
-}
 // ============================================================
 // Dark mode styles
 // ============================================================
@@ -264,63 +53,6 @@ $dark-mode: (
   input-border: #505050,
   text: #e0e0e0
 );
-
-body.dark-mode {
-  background-color: map-get($dark-mode, background);
-  color: map-get($dark-mode, text);
-
-  .navbar {
-    background-color: map-get($dark-mode, surface) !important;
-
-    &-light {
-      .navbar-brand,
-      .nav-link {
-        color: map-get($dark-mode, text);
-      }
-    }
-  }
-
-  .card {
-    background-color: map-get($dark-mode, surface);
-    border-color: map-get($dark-mode, border);
-  }
-
-  .table {
-    color: map-get($dark-mode, text);
-
-    td,
-    th {
-      border-color: map-get($dark-mode, border);
-    }
-  }
-
-  .form-control {
-    background-color: map-get($dark-mode, input-bg);
-    border-color: map-get($dark-mode, input-border);
-    color: map-get($dark-mode, text);
-  }
-
-  .modal {
-    &-content {
-      background-color: map-get($dark-mode, surface);
-      color: map-get($dark-mode, text);
-    }
-
-    &-header,
-    &-footer {
-      border-color: map-get($dark-mode, border);
-    }
-  }
-
-  .close {
-    color: map-get($dark-mode, text);
-  }
-
-  .btn-secondary {
-    background-color: map-get($dark-mode, input-bg);
-    border-color: map-get($dark-mode, input-border);
-  }
-}
 
 // ============================================================
 // Logo
@@ -339,113 +71,6 @@ body.dark-mode {
   }
   th.sortable {
     min-width: 140px;
-  }
-}
-
-.settings-header-controls {
-  .input-group {
-    position: relative;
-    max-width: 300px;
-    
-    #settingsFilter {
-      height: 38px;
-      padding-right: 35px;
-      border-radius: 6px;
-      border: 1px solid #dee2e6;
-      transition: all 0.2s ease;
-      
-      &:focus {
-        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.15);
-        border-color: #80bdff;
-      }
-      
-      &::placeholder {
-        color: #adb5bd;
-        font-size: 0.9rem;
-      }
-    }
-    
-    #clearFilter {
-      position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 38px;
-      border: none;
-      background: transparent;
-      color: #6c757d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 4;
-      
-      .fas {
-        font-size: 0.75rem;
-        transition: transform 0.15s ease;
-      }
-      
-      &:hover {
-        color: #495057;
-        
-        .fas {
-          transform: scale(1.2);
-        }
-      }
-      
-      &:focus {
-        outline: none;
-      }
-    }
-  }
-  
-  .btn-add-setting {
-    height: 38px;
-    // padding: 0 1.25rem;
-    font-weight: 500;
-    // display: flex;
-    align-items: center;
-    // gap: 0.5rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    width: 100%;
-    .fas {
-      font-size: 0.875rem;
-    }
-    
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-  }
-}
-
-// Dark mode support
-body.dark-mode {
-  .settings-header-controls {
-    .input-group {
-      #settingsFilter {
-        background-color: map-get($dark-mode, input-bg);
-        border-color: map-get($dark-mode, input-border);
-        color: map-get($dark-mode, text);
-        
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.5);
-        }
-        
-        &:focus {
-          box-shadow: 0 0 0 0.2rem rgba(255,255,255,.15);
-          border-color: rgba(255,255,255,.3);
-        }
-      }
-      
-      #clearFilter {
-        color: rgba(255, 255, 255, 0.5);
-        
-        &:hover {
-          color: rgba(255, 255, 255, 0.8);
-        }
-      }
-    }
   }
 }
 
