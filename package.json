@@ -1,34 +1,16 @@
 {
-  "name": "sass-splash",
-  "version": "0.0.1",
-  "description": "A coding sandbox for Sass and Gulp",
-  "main": "gulpfile.js",
-  "devDependencies": {
-    "autoprefixer": "^9.8.8",
-    "browser-sync": "^2.29.3",
-    "cssnano": "^4.1.11",
-    "gulp": "^5.0.0",
-    "gulp-autoprefixer": "^6.0.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-filter": "^5.1.0",
-    "gulp-jshint": "^2.1.0",
-    "gulp-postcss": "^8.0.0",
-    "gulp-rename": "^1.4.0",
-    "gulp-sass": "^6.0.0",
-    "gulp-shell": "^0.7.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-terser": "^2.1.0",
-    "jshint": "^2.13.6",
-    "jshint-stylish": "^2.2.1",
-    "postcss": "^7.0.39",
-    "sass": "^1.83.4"
-  },
-  "author": "Jabal Torres",
-  "license": "ISC",
-  "dependencies": {
-    "@popperjs/core": "^2.11.6",
-    "bootstrap": "^4.6.2",
-    "gulp-imagemin": "^5.0.3",
-    "jquery": "^3.7.1"
-  }
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^3.1",
+        "tailwindcss": "^4.0.0",
+        "vite": "^8.0.0"
+    }
 }

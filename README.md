@@ -1,171 +1,58 @@
-# Krate
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Krate is a PHP web app for cataloguing a vinyl record collection. It centers on records, with user accounts and a small admin area. The app uses Composer for PHP dependencies, Twig for templating, MySQL/MariaDB for storage, and a Gulp pipeline for frontend assets.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-This repository is currently a hybrid codebase:
+## About Laravel
 
-- The main entrypoint is `public/index.php`.
-- Core services and controllers live under `src/`.
-- Some pages are routed through `src/Routes/web.php`.
-- Many user/record flows still exist as direct legacy scripts under `public/`.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## What It Includes
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-- Record listing/search and record CRUD pages
-- User login and profile/admin-related pages
-- Admin dashboard/settings flow
-- Twig-based page rendering alongside PHP view templates
-- Sass, JS bundling, BrowserSync, and image optimization via Gulp
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Tech Stack
+## Learning Laravel
 
-- PHP 8.1
-- MariaDB/MySQL
-- Twig 3
-- Dotenv
-- Bootstrap 4.6
-- jQuery 3.7
-- Gulp
-- DDEV for local development
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-## Local Development
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-The practical local setup for this repo is DDEV. The checked-in DDEV config uses:
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-- PHP 8.1
-- MariaDB 10.11
-- `public/` as the docroot
-- project URL `https://krate.ddev.site`
+## Agentic Development
 
-### Prerequisites
-
-- DDEV
-- Docker/OrbStack
-- Node.js/npm
-- Composer
-
-### Start The Project
-
-1. Install PHP dependencies:
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
 ```bash
-composer install
+composer require laravel/boost --dev
+
+php artisan boost:install
 ```
 
-2. Install frontend dependencies:
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-```bash
-npm install
-```
+## Contributing
 
-3. Start DDEV:
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-```bash
-ddev start
-```
+## Code of Conduct
 
-4. Import the sample database dump if you need local data:
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-```bash
-ddev import-db --src=db.sql
-```
+## Security Vulnerabilities
 
-5. Open the site:
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-```bash
-ddev launch
-```
+## License
 
-Or visit `https://krate.ddev.site`.
-
-## Environment Variables
-
-The app reads configuration from a root `.env` file via `vlucas/phpdotenv`.
-
-At minimum, the code expects these keys:
-
-- `DB_SERVER`
-- `DB_USER`
-- `DB_PASS`
-- `DB_NAME`
-- `SITE_OWNER`
-- `SITE_AUTHOR`
-- `SITE_NAME`
-- `SITE_TAGLINE`
-- `SITE_DESCRIPTION`
-
-Optional but used by some flows:
-
-- `APP_ENV`
-- `POSTMARK_API_TOKEN` — Postmark server token; login notifications are skipped if unset.
-- `MAIL_FROM_ADDRESS` — "from" address for notification emails (falls back to `no-reply@localhost`).
-- `ADMIN_NOTIFICATION_EMAILS` — comma-separated recipients for admin/login notifications (falls back to `admin@localhost`).
-
-See `.env.example` for the full list with placeholder values.
-
-## Frontend Assets
-
-The asset pipeline is driven by `gulpfile.js`.
-
-Useful commands:
-
-```bash
-npx gulp
-```
-
-Runs the default task: cleans generated CSS, rebuilds styles/scripts, and starts BrowserSync against `https://krate.ddev.site/`.
-
-```bash
-npx gulp style
-```
-
-Builds Sass into `public/assets/css`.
-
-```bash
-npx gulp scripts
-```
-
-Lints and rebuilds frontend JS bundles.
-
-```bash
-npx gulp imageminify
-```
-
-Optimizes images in `public/assets/images`.
-
-## Database
-
-This project does not use framework migrations or `php artisan`.
-
-- The checked-in schema/data snapshot is `db.sql`.
-- To export the current DDEV database:
-
-```bash
-ddev exec mysqldump -u root -proot db > db.sql
-```
-
-> **Note:** `db.sql` contains anonymized sample data only — no real user data. Every seeded account (e.g. the `admin` user) uses the password **`Password123!`**. Change these credentials before using the dump for anything beyond local development.
-
-## Project Structure
-
-```text
-config/          bootstrap and app wiring
-public/          webroot and legacy PHP endpoints
-src/Controllers  controllers
-src/Core         router, helpers, validation, database classes
-src/Models       domain models
-src/Routes       route definitions
-src/Services     business logic/services
-src/Views        PHP and Twig views/templates
-public/assets/   Sass, JS, generated CSS, images
-```
-
-## Current State
-
-This is not a full framework app and the routing migration is not complete yet.
-
-- `public/index.php` bootstraps the app and hands requests to the custom router.
-- Only a subset of routes are currently defined in `src/Routes/web.php`.
-- Several features still rely on direct script endpoints such as `public/users/login.php` and `public/records/index.php`.
-
-That means local development and debugging should assume a mixed routed/legacy application, not a finished centralized MVC/router setup.
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

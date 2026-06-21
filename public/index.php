@@ -1,49 +1,20 @@
 <?php
-declare(strict_types=1);
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 
-// Load bootstrap and get application container
-$app = require_once(__DIR__ . '/../config/bootstrap.php');
+define('LARAVEL_START', microtime(true));
 
-use Krate\Controllers\RecordController;
-use Krate\Core\Router;
-
-// Initialize the router
-$router = new Router(); // Create a new Router instance directly
-
-// Load routes with router in scope
-require_once __DIR__ . '/../src/Routes/web.php';
-
-// Move the routing resolution before the RecordController logic
-try {
-    // Attempt to resolve the route first
-    $routeResolved = $router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-    
-    // Only proceed with RecordController if no route was matched
-    if ($routeResolved) {
-        return; // Early return if route is resolved
-    }
-
-    // Initialize the RecordController with the application service container
-    $recordController = new RecordController($app);
-
-    // Call the index method of the RecordController
-    $recordController->index();
-} catch (Exception $e) { // Use a general Exception type
-    // Log the error message to the error log
-    error_log("Error in index page: " . $e->getMessage());
-
-    // Display the error message to the user
-    echo "Error: " . $e->getMessage();
-
-    // Terminate the script
-    exit;
-} catch (Throwable $e) {
-    // Handle any other types of errors
-    error_log("Unexpected error: " . $e->getMessage());
-    echo "An unexpected error occurred.";
-    exit;
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
 }
+
+// Register the Composer autoloader...
+require __DIR__.'/../vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request...
+/** @var Application $app */
+$app = require_once __DIR__.'/../bootstrap/app.php';
+
+$app->handleRequest(Request::capture());

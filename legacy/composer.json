@@ -1,0 +1,32 @@
+{
+    "name": "krate/krate",
+    "description": "Krate — a vinyl record collection manager",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "ext-mysqli": "*",
+        "wildbit/postmark-php": "^4.0.5",
+        "vlucas/phpdotenv": "^5.6",
+        "twig/twig": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Krate\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jabal Torres",
+            "email": "jabal@fivetwofive.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "monolog/monolog": "^2.9"
+    },
+    "config": {
+        "platform": {
+            "php": "8.1.0"
+        }
+    }
+}
