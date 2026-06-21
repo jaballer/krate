@@ -1,3 +1,11 @@
+# Node 22: Vite 8 / rolldown / laravel-vite-plugin require Node ^20.19 || >=22.12
+# (the ddev default 20.x is too old and breaks the asset build).
+nodejs_version: "22"
+
+# We manage .env ourselves; stop DDEV from trying to rewrite it (it can't, since
+# .env is container-owned, and the attempt errors on every start).
+disable_settings_management: true
+
 # Krate uses a dedicated `krate` database for the Laravel app so the legacy
 # `db` database (CMS-era tables) is left untouched as a reference during the
 # migration. Provision it + grant the default ddev user on every start.
