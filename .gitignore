@@ -1,0 +1,26 @@
+# Ignore sass cache
+sass/.sass-cache
+sass/.sass-cache/*
+
+# Ignore node modules
+node_modules
+node_modules/*
+
+# Ignore phpstorm configs
+.idea
+.idea/*
+
+.DS_Store
+
+# Ignore db credentials
+src/db_credentials.php
+/vendor/
+/cache/twig/*
+!cache/twig/.gitkeep
+composer.lock
+
+.env
+
+# Ignore Records uploads
+/public/records/uploads/
+/public/uploads/

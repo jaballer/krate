@@ -1,0 +1,52 @@
+{% extends 'templates/base.twig' %}
+
+{% block title %}{{ page_title }} | {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Delete Vinyl Record: {{ record.title }} by {{ record.artist }}</h1>
+
+            <p>Are you sure you want to delete the following record?</p>
+
+            <ul>
+                <li><strong>Title:</strong> {{ record.title }}</li>
+                <li><strong>Artist:</strong> {{ record.artist }}</li>
+                <li><strong>Genre:</strong> {{ record.genre }}</li>
+                <li><strong>Release Year:</strong> {{ record.releaseYear }}</li>
+                <li><strong>Label:</strong> {{ record.label }}</li>
+                <li><strong>Catalog Number:</strong> {{ record.catalogNumber }}</li>
+                <li><strong>Format:</strong> {{ record.format }}</li>
+                <li><strong>Speed:</strong> {{ record.speed }}</li>
+                <li><strong>Condition:</strong> {{ record.condition }}</li>
+                <li><strong>Purchase Date:</strong> {{ record.purchaseDate }}</li>
+                <li><strong>Purchase Price:</strong> ${{ record.purchasePrice|number_format(2) }}</li>
+                <li><strong>Notes:</strong> {{ record.notes }}</li>
+
+                {% if record.frontImage %}
+                    <li><strong>Front Image:</strong>
+                        <img src="{{ url_for('/uploads/' ~ record.frontImage|split('/')|last) }}"
+                             alt="Front Image"
+                             style="max-width: 100px;">
+                    </li>
+                {% endif %}
+
+                {% if record.backImage %}
+                    <li><strong>Back Image:</strong>
+                        <img src="{{ url_for('/uploads/' ~ record.backImage|split('/')|last) }}"
+                             alt="Back Image"
+                             style="max-width: 100px;">
+                    </li>
+                {% endif %}
+            </ul>
+
+            <form method="POST" action="delete.php?id={{ record.id }}">
+                {{ csrf_field()|raw }}
+                <button type="submit" class="btn btn-danger">Delete Record</button>
+                <a href="{{ url_for('/records/edit.php?id=' ~ record.id) }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
