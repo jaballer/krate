@@ -30,6 +30,16 @@ class CatalogTest extends TestCase
         $response->assertOk()->assertSee('Illmatic')->assertDontSee('Aquemini');
     }
 
+    public function test_array_search_parameter_is_ignored(): void
+    {
+        Record::factory()->create(['title' => 'Some Record']);
+
+        // ?search[]=foo previously hit an Array-to-string 500 on this public page.
+        $this->get('/?search[]=foo')
+            ->assertOk()
+            ->assertSee('Some Record');
+    }
+
     public function test_record_detail_is_shown(): void
     {
         $record = Record::factory()->create(['title' => 'The Chronic', 'artist' => 'Dr. Dre']);
