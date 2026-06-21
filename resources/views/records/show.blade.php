@@ -1,24 +1,26 @@
 @extends('layouts.public')
 
-@section('title', $record->title.' — '.config('krate.site.name', 'Krate'))
+@section('title', e($record->title).' — '.config('krate.site.name', 'Krate'))
 
 @section('content')
     <a href="{{ route('records.index') }}" class="mb-6 inline-block text-sm text-gray-500 hover:text-gray-900">&larr; Back to catalog</a>
 
+    @php
+        $front = $record->front_image ? Storage::disk('public')->url($record->front_image) : null;
+        $back = $record->back_image ? Storage::disk('public')->url($record->back_image) : null;
+    @endphp
+
     <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div x-data="{ back: false }" class="space-y-3">
             <div class="aspect-square w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
-                @php
-                    $front = $record->front_image ? Storage::disk('public')->url($record->front_image) : null;
-                    $back = $record->back_image ? Storage::disk('public')->url($record->back_image) : null;
-                @endphp
                 @if ($front || $back)
-                    <img :src="back ? @js($back) : @js($front)" alt="{{ $record->title }}" class="h-full w-full object-cover">
+                    {{-- Each side falls back to the other so a single available cover always shows. --}}
+                    <img :src="back ? @js($back ?? $front) : @js($front ?? $back)" alt="{{ $record->title }}" class="h-full w-full object-cover">
                 @else
                     <div class="flex h-full w-full items-center justify-center text-8xl text-gray-300">&#9210;</div>
                 @endif
             </div>
-            @if ($back)
+            @if ($front && $back)
                 <button type="button" @click="back = !back"
                         class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                     Flip <span x-text="back ? '(showing back)' : '(showing front)'"></span>

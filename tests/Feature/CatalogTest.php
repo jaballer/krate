@@ -39,4 +39,27 @@ class CatalogTest extends TestCase
             ->assertSee('The Chronic')
             ->assertSee('Dr. Dre');
     }
+
+    public function test_record_title_is_escaped_in_the_page_title(): void
+    {
+        $record = Record::factory()->create(['title' => 'Evil</title><script>alert(1)</script>']);
+
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertDontSee('<script>alert(1)</script>', false); // raw needle must not appear
+    }
+
+    public function test_back_cover_is_shown_when_there_is_no_front_cover(): void
+    {
+        // Distinctive, slash-free filename so the assertion is robust against
+        // @js slash-escaping and absolute vs relative storage URLs.
+        $record = Record::factory()->create([
+            'front_image' => null,
+            'back_image' => 'records/only-back-cover.jpg',
+        ]);
+
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSee('only-back-cover.jpg'); // back image referenced even with no front
+    }
 }
