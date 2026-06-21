@@ -14,7 +14,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['first_name', 'last_name', 'username', 'email', 'password'])]
+// `role` and `email_verified_at` are mass-assignable so the staff-only Filament
+// UserResource can set them. Public flows can't escalate: the registration
+// controller and ProfileUpdateRequest both whitelist fields and never include role.
+#[Fillable(['first_name', 'last_name', 'username', 'email', 'password', 'role', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {

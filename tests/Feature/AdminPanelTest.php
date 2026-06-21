@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
+use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Models\Record;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminPanelTest extends TestCase
@@ -30,12 +33,15 @@ class AdminPanelTest extends TestCase
         $this->actingAs($member)->get('/admin')->assertForbidden();
     }
 
-    public function test_staff_can_list_records(): void
+    public function test_staff_can_list_records_including_enum_columns(): void
     {
         $admin = User::factory()->administrator()->create();
-        Record::factory()->count(3)->create();
+        Record::factory()->create(['title' => 'Reasonable Doubt']);
 
-        $this->actingAs($admin)->get('/admin/records')->assertOk();
+        $this->actingAs($admin)
+            ->get('/admin/records')
+            ->assertOk()
+            ->assertSee('Reasonable Doubt'); // table body (with enum columns) renders
     }
 
     public function test_staff_can_manage_users_and_settings(): void
@@ -44,5 +50,29 @@ class AdminPanelTest extends TestCase
 
         $this->actingAs($admin)->get('/admin/users')->assertOk();
         $this->actingAs($admin)->get('/admin/settings')->assertOk();
+    }
+
+    public function test_staff_can_create_an_administrator(): void
+    {
+        $admin = User::factory()->administrator()->create();
+
+        Livewire::actingAs($admin)
+            ->test(CreateUser::class)
+            ->fillForm([
+                'first_name' => 'New',
+                'last_name' => 'Admin',
+                'username' => 'newadmin',
+                'email' => 'newadmin@example.com',
+                'password' => 'password',
+                'role' => UserRole::Administrator->value,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        // role must actually persist (regression: role was not fillable)
+        $this->assertDatabaseHas('users', [
+            'email' => 'newadmin@example.com',
+            'role' => UserRole::Administrator->value,
+        ]);
     }
 }

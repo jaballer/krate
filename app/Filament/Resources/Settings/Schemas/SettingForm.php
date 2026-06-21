@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Settings\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -14,26 +15,27 @@ class SettingForm
         return $schema
             ->components([
                 TextInput::make('setting_key')
-                    ->required(),
-                Textarea::make('setting_value')
-                    ->default(null)
-                    ->columnSpanFull(),
-                TextInput::make('setting_type')
+                    ->required()
+                    ->maxLength(100)
+                    ->unique(ignoreRecord: true),
+                Select::make('setting_type')
+                    ->options([
+                        'string' => 'String',
+                        'integer' => 'Integer',
+                        'float' => 'Float',
+                        'boolean' => 'Boolean',
+                        'json' => 'JSON',
+                        'array' => 'Array',
+                    ])
                     ->required()
                     ->default('string'),
+                Textarea::make('setting_value')
+                    ->columnSpanFull(),
                 TextInput::make('category')
                     ->required()
                     ->default('general'),
-                TextInput::make('description')
-                    ->default(null),
-                Toggle::make('is_private')
-                    ->required(),
-                TextInput::make('created_by')
-                    ->numeric()
-                    ->default(null),
-                TextInput::make('updated_by')
-                    ->numeric()
-                    ->default(null),
+                TextInput::make('description'),
+                Toggle::make('is_private'),
             ]);
     }
 }
