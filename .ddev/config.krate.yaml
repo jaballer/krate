@@ -1,0 +1,6 @@
+# Krate uses a dedicated `krate` database for the Laravel app so the legacy
+# `db` database (CMS-era tables) is left untouched as a reference during the
+# migration. Provision it + grant the default ddev user on every start.
+hooks:
+  post-start:
+    - exec: "mysql -h db -u root -proot -e \"CREATE DATABASE IF NOT EXISTS krate CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON krate.* TO 'db'@'%'; FLUSH PRIVILEGES;\""
