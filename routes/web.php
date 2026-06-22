@@ -1,16 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecordController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public catalog (read-only)
+Route::get('/', [RecordController::class, 'index'])->name('records.index');
+Route::get('/records/{record}', [RecordController::class, 'show'])->name('records.show');
 
-// NOTE: email verification is intentionally NOT enforced yet — there is no real
-// mail delivery wired, so gating on `verified` would wall new registrants behind
-// an email link they can't receive. To enable later: implement MustVerifyEmail
-// on App\Models\User, wire mail (Postmark), and add 'verified' back here.
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware('auth')->name('dashboard');
