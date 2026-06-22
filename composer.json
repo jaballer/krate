@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "jaballer/krate",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Krate — a vinyl record collection manager (Laravel 13 + Filament).",
+    "keywords": ["laravel", "filament", "vinyl", "records"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
