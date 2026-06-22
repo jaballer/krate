@@ -29,6 +29,18 @@
     </main>
 
     <footer class="border-t border-gray-200 py-6 text-center text-sm text-gray-500">
+        @php($socialLinks = app(\App\Services\SocialLinksService::class)->links())
+        @if ($socialLinks)
+            <ul class="mb-3 flex justify-center gap-4">
+                @foreach ($socialLinks as $link)
+                    <li>
+                        <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="hover:text-gray-900">
+                            {{ $link['label'] }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
         &copy; {{ date('Y') }} {{ config('krate.site.name', 'Krate') }}
     </footer>
 </body>
