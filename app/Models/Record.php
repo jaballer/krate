@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\RecordCondition;
 use App\Enums\RecordFormat;
 use App\Enums\RecordSpeed;
+use Database\Factories\RecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Record extends Model
 {
+    /** @use HasFactory<RecordFactory> */
     use HasFactory;
 
     protected $table = 'vinyl_records';

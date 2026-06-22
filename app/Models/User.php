@@ -17,6 +17,9 @@ use Illuminate\Notifications\Notifiable;
 // `role` and `email_verified_at` are mass-assignable so the staff-only Filament
 // UserResource can set them. Public flows can't escalate: the registration
 // controller and ProfileUpdateRequest both whitelist fields and never include role.
+/**
+ * @property UserRole $role
+ */
 #[Fillable(['first_name', 'last_name', 'username', 'email', 'password', 'role', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
@@ -36,7 +39,11 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-    /** Convenience full-name accessor (no `name` column on this schema). */
+    /**
+     * Convenience full-name accessor (no `name` column on this schema).
+     *
+     * @return Attribute<string, never>
+     */
     protected function name(): Attribute
     {
         return Attribute::get(fn (): string => trim("{$this->first_name} {$this->last_name}"));

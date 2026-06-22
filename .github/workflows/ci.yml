@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint, analyse & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3, dom, curl, fileinfo, gd, bcmath, zip
+          coverage: none
+
+      - name: Copy environment file
+        run: cp .env.example .env
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Check code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Static analysis (Larastan)
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build front-end assets
+        run: npm run build
+
+      - name: Run migrations (SQLite smoke check)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
+        run: |
+          touch database/database.sqlite
+          php artisan migrate --force
+
+      - name: Run tests
+        run: php artisan test
