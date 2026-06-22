@@ -34,10 +34,22 @@ class CatalogTest extends TestCase
     {
         Record::factory()->create(['title' => 'Some Record']);
 
-        // ?search[]=foo previously hit an Array-to-string 500 on this public page.
         $this->get('/?search[]=foo')
             ->assertOk()
             ->assertSee('Some Record');
+    }
+
+    public function test_grid_shows_cover_art_with_back_fallback(): void
+    {
+        // A record with a front cover, and one with only a back cover.
+        Record::factory()->create(['front_image' => 'records/front-art.jpg', 'back_image' => null]);
+        Record::factory()->create(['front_image' => null, 'back_image' => 'records/back-art.jpg']);
+
+        // 200 here also proves the Storage facade resolves in the rendered grid.
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('front-art.jpg')   // front cover shown
+            ->assertSee('back-art.jpg');   // back-only record falls back to its back cover
     }
 
     public function test_record_detail_is_shown(): void
@@ -56,13 +68,11 @@ class CatalogTest extends TestCase
 
         $this->get(route('records.show', $record))
             ->assertOk()
-            ->assertDontSee('<script>alert(1)</script>', false); // raw needle must not appear
+            ->assertDontSee('<script>alert(1)</script>', false);
     }
 
     public function test_back_cover_is_shown_when_there_is_no_front_cover(): void
     {
-        // Distinctive, slash-free filename so the assertion is robust against
-        // @js slash-escaping and absolute vs relative storage URLs.
         $record = Record::factory()->create([
             'front_image' => null,
             'back_image' => 'records/only-back-cover.jpg',
@@ -70,7 +80,7 @@ class CatalogTest extends TestCase
 
         $this->get(route('records.show', $record))
             ->assertOk()
-            ->assertSee('only-back-cover.jpg'); // back image referenced even with no front
+            ->assertSee('only-back-cover.jpg');
     }
 
     public function test_zero_bpm_is_hidden(): void

@@ -1,5 +1,7 @@
 @extends('layouts.public')
 
+@use('Illuminate\Support\Facades\Storage')
+
 @section('content')
     <section class="mb-8 text-center">
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{{ config('krate.site.name', 'Krate') }}</h1>
@@ -33,8 +35,9 @@
                 <a href="{{ route('records.show', $record) }}"
                    class="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
                     <div class="aspect-square w-full bg-gray-100">
-                        @if ($record->front_image)
-                            <img src="{{ Storage::disk('public')->url($record->front_image) }}"
+                        @php $cover = $record->front_image ?? $record->back_image; @endphp
+                        @if ($cover)
+                            <img src="{{ Storage::disk('public')->url($cover) }}"
                                  alt="{{ $record->title }}" class="h-full w-full object-cover">
                         @else
                             <div class="flex h-full w-full items-center justify-center text-6xl text-gray-300">&#9210;</div>

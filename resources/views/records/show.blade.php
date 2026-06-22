@@ -1,5 +1,7 @@
 @extends('layouts.public')
 
+@use('Illuminate\Support\Facades\Storage')
+
 @section('title', e($record->title).' — '.config('krate.site.name', 'Krate'))
 
 @section('content')
