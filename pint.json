@@ -1,6 +1,3 @@
 {
-    "preset": "laravel",
-    "exclude": [
-        "legacy"
-    ]
+    "preset": "laravel"
 }
