@@ -1,0 +1,18 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+
+    # Level 6 requires generics/return types throughout; bump higher as the codebase tightens.
+    level: 6
+
+    ignoreErrors:
+        # Breeze scaffolding. EmailVerificationRequest guarantees an authenticated
+        # user, but the model deliberately does not implement MustVerifyEmail
+        # (verification is scaffolded but not enforced — see User.php), so PHPStan
+        # can't statically prove the Verified event's argument type.
+        -
+            message: '#Parameter \#1 \$user of class Illuminate\\Auth\\Events\\Verified constructor expects Illuminate\\Contracts\\Auth\\MustVerifyEmail, App\\Models\\User\|null given\.#'
+            path: app/Http/Controllers/Auth/VerifyEmailController.php
