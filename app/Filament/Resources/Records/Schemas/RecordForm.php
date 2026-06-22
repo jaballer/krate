@@ -44,10 +44,12 @@ class RecordForm
                     ->columnSpanFull(),
                 FileUpload::make('front_image')
                     ->image()
+                    ->maxSize(5120) // 5 MB, matches the legacy RecordImageService limit
                     ->disk('public')
                     ->directory('records'),
                 FileUpload::make('back_image')
                     ->image()
+                    ->maxSize(5120)
                     ->disk('public')
                     ->directory('records'),
                 TextInput::make('purchase_link')
