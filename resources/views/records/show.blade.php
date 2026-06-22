@@ -8,6 +8,15 @@
     @php
         $front = $record->front_image ? Storage::disk('public')->url($record->front_image) : null;
         $back = $record->back_image ? Storage::disk('public')->url($record->back_image) : null;
+
+        // Only expose http/https URLs publicly — schemes like javascript: are an
+        // XSS vector in href/src and HTML escaping does not neutralize them.
+        $webUrl = function (?string $url): ?string {
+            $scheme = strtolower((string) parse_url((string) $url, PHP_URL_SCHEME));
+            return in_array($scheme, ['http', 'https'], true) ? $url : null;
+        };
+        $purchaseUrl = $webUrl($record->purchase_link);
+        $audioUrl = $webUrl($record->audio_file_url);
     @endphp
 
     <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -42,7 +51,7 @@
                         'Format' => $record->format->value,
                         'Speed' => $record->speed->value,
                         'Condition' => $record->condition->value,
-                        'BPM' => $record->bpm,
+                        'BPM' => $record->bpm ?: null, // 0 is the "unknown" sentinel
                         'Purchased' => $record->purchase_date?->format('M j, Y'),
                         'Price' => $record->purchase_price !== null ? '$'.$record->purchase_price : null,
                     ], fn ($v) => $v !== null && $v !== '');
@@ -62,15 +71,15 @@
                 </div>
             @endif
 
-            @if ($record->audio_file_url)
+            @if ($audioUrl)
                 <div class="mt-6">
                     <h2 class="text-sm font-semibold text-gray-500">Listen</h2>
-                    <audio controls preload="none" src="{{ $record->audio_file_url }}" class="mt-2 w-full"></audio>
+                    <audio controls preload="none" src="{{ $audioUrl }}" class="mt-2 w-full"></audio>
                 </div>
             @endif
 
-            @if ($record->purchase_link)
-                <a href="{{ $record->purchase_link }}" target="_blank" rel="noopener noreferrer"
+            @if ($purchaseUrl)
+                <a href="{{ $purchaseUrl }}" target="_blank" rel="noopener noreferrer"
                    class="mt-8 inline-block rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
                     Where to buy &rarr;
                 </a>

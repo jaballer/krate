@@ -72,4 +72,27 @@ class CatalogTest extends TestCase
             ->assertOk()
             ->assertSee('only-back-cover.jpg'); // back image referenced even with no front
     }
+
+    public function test_zero_bpm_is_hidden(): void
+    {
+        $hasBpm = Record::factory()->create(['bpm' => 120]);
+        $this->get(route('records.show', $hasBpm))->assertOk()->assertSee('BPM');
+
+        $zeroBpm = Record::factory()->create(['bpm' => 0]);
+        $this->get(route('records.show', $zeroBpm))->assertOk()->assertDontSee('BPM');
+    }
+
+    public function test_non_web_purchase_links_are_not_rendered(): void
+    {
+        $malicious = Record::factory()->create(['purchase_link' => 'javascript:alert(1)']);
+        $this->get(route('records.show', $malicious))
+            ->assertOk()
+            ->assertDontSee('javascript:alert(1)', false)
+            ->assertDontSee('Where to buy');
+
+        $safe = Record::factory()->create(['purchase_link' => 'https://example.com/buy']);
+        $this->get(route('records.show', $safe))
+            ->assertOk()
+            ->assertSee('Where to buy');
+    }
 }
