@@ -1,3 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/forms';
+
+/* Laravel's pagination Blade lives in gitignored vendor/, which Tailwind v4's
+   automatic content detection skips — register it so those classes survive. */
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views';
+
+@theme {
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+}
