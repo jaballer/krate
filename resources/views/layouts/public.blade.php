@@ -7,22 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-full flex-col bg-gray-50 text-gray-900 antialiased">
-    <header class="border-b border-gray-200 bg-white">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <a href="{{ route('records.index') }}" class="text-xl font-bold tracking-tight">
-                {{ config('krate.site.name', 'Krate') }}
-            </a>
-            <nav class="flex items-center gap-4 text-sm">
-                <a href="{{ route('records.index') }}" class="text-gray-600 hover:text-gray-900">Catalog</a>
-                @auth
-                    <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
-                @else
-                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-900">Log in</a>
-                    <a href="{{ route('register') }}" class="rounded-md bg-gray-900 px-3 py-1.5 font-medium text-white hover:bg-gray-700">Register</a>
-                @endauth
-            </nav>
-        </div>
-    </header>
+    <x-site-header />
 
     <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         @yield('content')
