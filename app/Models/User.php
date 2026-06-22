@@ -28,6 +28,17 @@ class User extends Authenticatable implements FilamentUser
     use HasFactory, Notifiable;
 
     /**
+     * Default attribute values. Mirrors the `role` column's DB default so a
+     * freshly-instantiated user (e.g. just-registered, before the row is
+     * re-read) always has a non-null role.
+     *
+     * @var array<string, string>
+     */
+    protected $attributes = [
+        'role' => UserRole::StandardUser->value,
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
