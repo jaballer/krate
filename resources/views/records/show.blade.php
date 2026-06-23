@@ -1,11 +1,31 @@
 @extends('layouts.public')
 
 @use('Illuminate\Support\Facades\Storage')
+@use('App\Filament\Resources\Records\RecordResource')
 
 @section('title', e($record->title).' — '.config('krate.site.name', 'Krate'))
 
 @section('content')
-    <a href="{{ route('records.index') }}" class="mb-6 inline-block text-sm text-gray-500 hover:text-gray-900">&larr; Back to catalog</a>
+    @php
+        // Staff (Administrator/Manager) get an inline shortcut to the Filament
+        // edit screen for the record on view. Mirrors the isStaff() gate in the
+        // site header; the public catalog itself stays read-only.
+        $canEdit = auth()->user()?->role->isStaff() ?? false;
+    @endphp
+
+    <div class="mb-6 flex items-center justify-between gap-3">
+        <a href="{{ route('records.index') }}" class="text-sm text-gray-500 hover:text-gray-900">&larr; Back to catalog</a>
+
+        @if ($canEdit)
+            <a href="{{ RecordResource::getUrl('edit', ['record' => $record]) }}"
+               class="inline-flex items-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                </svg>
+                Edit record
+            </a>
+        @endif
+    </div>
 
     @php
         $front = $record->front_image ? Storage::disk('public')->url($record->front_image) : null;
