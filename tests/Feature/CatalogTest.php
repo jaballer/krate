@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
+use App\Filament\Resources\Records\RecordResource;
 use App\Models\Record;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -104,5 +107,40 @@ class CatalogTest extends TestCase
         $this->get(route('records.show', $safe))
             ->assertOk()
             ->assertSee('Where to buy');
+    }
+
+    public function test_staff_see_an_edit_link_to_the_filament_record_editor(): void
+    {
+        $record = Record::factory()->create();
+        $editUrl = RecordResource::getUrl('edit', ['record' => $record]);
+
+        $staff = [
+            User::factory()->administrator()->create(),
+            User::factory()->create(['role' => UserRole::Manager]),
+        ];
+
+        foreach ($staff as $user) {
+            $this->actingAs($user)
+                ->get(route('records.show', $record))
+                ->assertOk()
+                ->assertSee('Edit record')
+                ->assertSee($editUrl, false);
+        }
+    }
+
+    public function test_non_staff_and_guests_do_not_see_an_edit_link(): void
+    {
+        $record = Record::factory()->create();
+
+        // Guest
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertDontSee('Edit record');
+
+        // Standard member
+        $this->actingAs(User::factory()->create()) // defaults to Standard User
+            ->get(route('records.show', $record))
+            ->assertOk()
+            ->assertDontSee('Edit record');
     }
 }
