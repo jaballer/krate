@@ -15,7 +15,9 @@ return [
     */
 
     'postmark' => [
-        'key' => env('POSTMARK_API_KEY'),
+        // Laravel's Postmark transport reads `services.postmark.token`. Krate
+        // standardizes on POSTMARK_API_TOKEN (see config/krate.php and .env.example).
+        'token' => env('POSTMARK_API_TOKEN'),
     ],
 
     'resend' => [
