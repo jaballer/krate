@@ -6,6 +6,7 @@ use App\Enums\RecordCondition;
 use App\Enums\RecordFormat;
 use App\Models\Record;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class RecordController extends Controller
@@ -22,6 +23,36 @@ class RecordController extends Controller
         'artist' => ['artist', 'asc'],
         'year' => ['release_year', 'desc'],
         'price' => ['purchase_price', 'desc'],
+    ];
+
+    /**
+     * Columns the public search box matches. Backed by a FULLTEXT index on
+     * MariaDB/MySQL (see the add-fulltext-index migration); LIKE on SQLite.
+     *
+     * @var list<string>
+     */
+    private const SEARCH_COLUMNS = ['title', 'artist', 'genre', 'label'];
+
+    /**
+     * Mirrors MariaDB's default innodb_ft_min_token_size: tokens shorter than
+     * this aren't indexed. A search containing one defers to LIKE (see
+     * fullTextQuery()) rather than requiring a `+short*` that can never match.
+     */
+    private const FULLTEXT_MIN_TOKEN_LENGTH = 3;
+
+    /**
+     * MariaDB/InnoDB's default fulltext stopword list
+     * (information_schema.INNODB_FT_DEFAULT_STOPWORD). These aren't indexed, so
+     * a search containing one defers to LIKE rather than requiring a `+the*`
+     * token that matches nothing.
+     *
+     * @var list<string>
+     */
+    private const FULLTEXT_STOPWORDS = [
+        'a', 'about', 'an', 'are', 'as', 'at', 'be', 'by', 'com', 'de', 'en',
+        'for', 'from', 'how', 'i', 'in', 'is', 'it', 'la', 'of', 'on', 'or',
+        'that', 'the', 'this', 'to', 'und', 'was', 'what', 'when', 'where',
+        'who', 'will', 'with', 'www',
     ];
 
     /** Public catalog: list records, with optional search, filters, and sort. */
@@ -75,10 +106,7 @@ class RecordController extends Controller
         [$sortColumn, $sortDirection] = self::SORTS[$sort];
 
         $records = Record::query()
-            ->when($search !== '', fn ($query) => $query->where(
-                fn ($q) => $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('artist', 'like', "%{$search}%")
-            ))
+            ->when($search !== '', fn ($query) => $this->applySearch($query, $search))
             ->when($genre !== null, fn ($query) => $query->where('genre', $genre))
             ->when($format !== null, fn ($query) => $query->where('format', $format->value))
             ->when($condition !== null, fn ($query) => $query->where('condition', $condition->value))
@@ -107,6 +135,83 @@ class RecordController extends Controller
             'hasActiveFilters' => $search !== '' || $genre !== null || $format !== null
                 || $condition !== null || $decade !== null,
         ]);
+    }
+
+    /**
+     * Apply the catalog search across {@see self::SEARCH_COLUMNS}.
+     *
+     * MariaDB/MySQL use the FULLTEXT index via MATCH … AGAINST in boolean mode
+     * with required, prefix-matched tokens; SQLite (tests) has no FULLTEXT and
+     * falls back to a substring LIKE over the same columns. Both broaden the
+     * original title/artist-only search to genre and label.
+     *
+     * @param  Builder<Record>  $query
+     */
+    private function applySearch(Builder $query, string $search): void
+    {
+        if (in_array($query->getModel()->getConnection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            $boolean = $this->fullTextQuery($search);
+
+            if ($boolean !== null) {
+                $query->whereFullText(self::SEARCH_COLUMNS, $boolean, ['mode' => 'boolean']);
+
+                return;
+            }
+        }
+
+        // SQLite, or a search the fulltext index can't represent faithfully:
+        // keep the exact submitted text as a required substring across columns.
+        $query->where(function ($q) use ($search) {
+            foreach (self::SEARCH_COLUMNS as $i => $column) {
+                $i === 0
+                    ? $q->where($column, 'like', "%{$search}%")
+                    : $q->orWhere($column, 'like', "%{$search}%");
+            }
+        });
+    }
+
+    /**
+     * Build a BOOLEAN-mode fulltext expression for $search, or null when the
+     * index can't represent it faithfully (so applySearch() uses LIKE instead).
+     *
+     * The value is split on non-word characters, so separators like the hyphen
+     * in "Jay-Z" become token boundaries, matching how InnoDB tokenises the
+     * index. Fulltext is only used when EVERY token is indexable — at least
+     * FULLTEXT_MIN_TOKEN_LENGTH characters and not a stopword. MySQL silently
+     * skips tokens it won't index (too short, or a stopword like "the"), which
+     * would make a required `+token*` match nothing ("The Chronic") or weaken a
+     * multi-word search to its remaining words ("U2 War" → only "War"). In
+     * those cases null defers to LIKE, which matches the exact submitted text
+     * like the SQLite test path. Surviving tokens are required and
+     * prefix-matched, so "Miles Davis" needs both words while "Krau" still
+     * prefix-matches "Krautrock".
+     */
+    private function fullTextQuery(string $search): ?string
+    {
+        // MySQL's fulltext parser treats "_" and "'" as word characters, so
+        // "foo_bar" / "don't" are single indexed tokens — but the split below
+        // breaks on them, producing tokens the index doesn't contain. Defer
+        // such searches to LIKE rather than build a query that can't match.
+        if (preg_match("/[_']/", $search) === 1) {
+            return null;
+        }
+
+        $tokens = preg_split('/[^\p{L}\p{N}]+/u', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($tokens === []) {
+            return null;
+        }
+
+        foreach ($tokens as $token) {
+            if (mb_strlen($token) < self::FULLTEXT_MIN_TOKEN_LENGTH
+                || in_array(mb_strtolower($token), self::FULLTEXT_STOPWORDS, true)) {
+                return null;
+            }
+        }
+
+        return collect($tokens)
+            ->map(fn (string $token) => '+'.$token.'*')
+            ->implode(' ');
     }
 
     /** Public record detail. */
