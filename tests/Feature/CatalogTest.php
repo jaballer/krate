@@ -263,4 +263,18 @@ class CatalogTest extends TestCase
             ->assertOk()
             ->assertSee('Array Safe');
     }
+
+    public function test_empty_genre_param_does_not_filter_even_with_a_blank_genre_record(): void
+    {
+        // A record with genre '' would make '' a candidate filter value, but the
+        // default "All genres" option submits genre= — that must stay "no filter"
+        // and not hide every record that has a real genre.
+        Record::factory()->create(['title' => 'Real Genre Record', 'genre' => 'Jazz']);
+        Record::factory()->create(['title' => 'Blank Genre Record', 'genre' => '']);
+
+        $this->get('/?genre=')
+            ->assertOk()
+            ->assertSee('Real Genre Record')
+            ->assertSee('Blank Genre Record');
+    }
 }

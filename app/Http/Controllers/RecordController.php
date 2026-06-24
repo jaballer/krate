@@ -33,9 +33,12 @@ class RecordController extends Controller
         $search = is_string($term) ? trim($term) : '';
 
         // Filter option lists are derived from the catalog itself, so the UI only
-        // ever offers values that actually match something.
+        // ever offers values that actually match something. Blank genres are
+        // excluded so the empty string can never become a real filter value
+        // (the default "All genres" option submits genre=).
         $genres = Record::query()
             ->whereNotNull('genre')
+            ->where('genre', '!=', '')
             ->distinct()
             ->orderBy('genre')
             ->pluck('genre');
@@ -53,7 +56,7 @@ class RecordController extends Controller
         // erroring. Enum filters go through tryFrom(); genre/decade are checked
         // against the catalog-derived lists above.
         $rawGenre = $request->query('genre');
-        $genre = is_string($rawGenre) && $genres->contains($rawGenre) ? $rawGenre : null;
+        $genre = is_string($rawGenre) && $rawGenre !== '' && $genres->containsStrict($rawGenre) ? $rawGenre : null;
 
         $rawFormat = $request->query('format');
         $format = is_string($rawFormat) ? RecordFormat::tryFrom($rawFormat) : null;
