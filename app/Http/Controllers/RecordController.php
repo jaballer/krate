@@ -33,6 +33,14 @@ class RecordController extends Controller
      */
     private const SEARCH_COLUMNS = ['title', 'artist', 'genre', 'label'];
 
+    /**
+     * Mirrors MariaDB's default innodb_ft_min_token_size. Tokens shorter than
+     * this aren't indexed, so a required `+short*` term would match nothing —
+     * they're dropped from the boolean query, and when that empties it,
+     * applySearch() falls back to LIKE (which handles short substrings).
+     */
+    private const FULLTEXT_MIN_TOKEN_LENGTH = 3;
+
     /** Public catalog: list records, with optional search, filters, and sort. */
     public function index(Request $request): View
     {
@@ -119,9 +127,9 @@ class RecordController extends Controller
      * Apply the catalog search across {@see self::SEARCH_COLUMNS}.
      *
      * MariaDB/MySQL use the FULLTEXT index via MATCH … AGAINST in boolean mode
-     * with prefix matching; SQLite (tests) has no FULLTEXT and falls back to a
-     * substring LIKE over the same columns. Both broaden the original
-     * title/artist-only search to genre and label.
+     * with required, prefix-matched tokens; SQLite (tests) has no FULLTEXT and
+     * falls back to a substring LIKE over the same columns. Both broaden the
+     * original title/artist-only search to genre and label.
      *
      * @param  Builder<Record>  $query
      */
@@ -148,18 +156,25 @@ class RecordController extends Controller
     }
 
     /**
-     * Reduce a raw search value to a safe BOOLEAN-mode fulltext expression:
-     * strip the operator characters, then prefix-match each remaining token
-     * (`term*`). Returns '' when nothing usable is left.
+     * Reduce a raw search value to a safe BOOLEAN-mode fulltext expression.
+     *
+     * The value is split on non-word characters, so separators like the hyphen
+     * in "Jay-Z" become token boundaries (matching how InnoDB tokenises the
+     * index) rather than being deleted into a token that isn't indexed. Tokens
+     * below the min indexable length are dropped (see FULLTEXT_MIN_TOKEN_LENGTH)
+     * so "Jay-Z" searches as `+Jay*` rather than a `+Z*` that can never match.
+     * Each surviving token is required and prefix-matched (`+token*`) so
+     * multi-word searches like "Miles Davis" need every word, not any of them.
+     * When nothing usable remains the result is '', so the caller falls back to
+     * LIKE instead of sending a bare wildcard to the parser (a syntax error).
      */
     private function booleanFullTextTerms(string $search): string
     {
-        $tokens = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $tokens = preg_split('/[^\p{L}\p{N}]+/u', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
         return collect($tokens)
-            ->map(fn (string $word) => (string) preg_replace('/[+\-><()~*"@]+/', '', $word))
-            ->filter(fn (string $word) => $word !== '')
-            ->map(fn (string $word) => $word.'*')
+            ->filter(fn (string $word) => mb_strlen($word) >= self::FULLTEXT_MIN_TOKEN_LENGTH)
+            ->map(fn (string $word) => '+'.$word.'*')
             ->implode(' ');
     }
 
