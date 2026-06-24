@@ -34,12 +34,26 @@ class RecordController extends Controller
     private const SEARCH_COLUMNS = ['title', 'artist', 'genre', 'label'];
 
     /**
-     * Mirrors MariaDB's default innodb_ft_min_token_size. Tokens shorter than
-     * this aren't indexed, so a required `+short*` term would match nothing —
-     * they're dropped from the boolean query, and when that empties it,
-     * applySearch() falls back to LIKE (which handles short substrings).
+     * Mirrors MariaDB's default innodb_ft_min_token_size: tokens shorter than
+     * this aren't indexed. A search containing one defers to LIKE (see
+     * fullTextQuery()) rather than requiring a `+short*` that can never match.
      */
     private const FULLTEXT_MIN_TOKEN_LENGTH = 3;
+
+    /**
+     * MariaDB/InnoDB's default fulltext stopword list
+     * (information_schema.INNODB_FT_DEFAULT_STOPWORD). These aren't indexed, so
+     * a search containing one defers to LIKE rather than requiring a `+the*`
+     * token that matches nothing.
+     *
+     * @var list<string>
+     */
+    private const FULLTEXT_STOPWORDS = [
+        'a', 'about', 'an', 'are', 'as', 'at', 'be', 'by', 'com', 'de', 'en',
+        'for', 'from', 'how', 'i', 'in', 'is', 'it', 'la', 'of', 'on', 'or',
+        'that', 'the', 'this', 'to', 'und', 'was', 'what', 'when', 'where',
+        'who', 'will', 'with', 'www',
+    ];
 
     /** Public catalog: list records, with optional search, filters, and sort. */
     public function index(Request $request): View
@@ -136,16 +150,17 @@ class RecordController extends Controller
     private function applySearch(Builder $query, string $search): void
     {
         if (in_array($query->getModel()->getConnection()->getDriverName(), ['mysql', 'mariadb'], true)) {
-            $boolean = $this->booleanFullTextTerms($search);
+            $boolean = $this->fullTextQuery($search);
 
-            if ($boolean !== '') {
+            if ($boolean !== null) {
                 $query->whereFullText(self::SEARCH_COLUMNS, $boolean, ['mode' => 'boolean']);
 
                 return;
             }
         }
 
-        // SQLite, or a fulltext term that reduced to nothing usable: substring LIKE.
+        // SQLite, or a search the fulltext index can't represent faithfully:
+        // keep the exact submitted text as a required substring across columns.
         $query->where(function ($q) use ($search) {
             foreach (self::SEARCH_COLUMNS as $i => $column) {
                 $i === 0
@@ -156,25 +171,38 @@ class RecordController extends Controller
     }
 
     /**
-     * Reduce a raw search value to a safe BOOLEAN-mode fulltext expression.
+     * Build a BOOLEAN-mode fulltext expression for $search, or null when the
+     * index can't represent it faithfully (so applySearch() uses LIKE instead).
      *
      * The value is split on non-word characters, so separators like the hyphen
-     * in "Jay-Z" become token boundaries (matching how InnoDB tokenises the
-     * index) rather than being deleted into a token that isn't indexed. Tokens
-     * below the min indexable length are dropped (see FULLTEXT_MIN_TOKEN_LENGTH)
-     * so "Jay-Z" searches as `+Jay*` rather than a `+Z*` that can never match.
-     * Each surviving token is required and prefix-matched (`+token*`) so
-     * multi-word searches like "Miles Davis" need every word, not any of them.
-     * When nothing usable remains the result is '', so the caller falls back to
-     * LIKE instead of sending a bare wildcard to the parser (a syntax error).
+     * in "Jay-Z" become token boundaries, matching how InnoDB tokenises the
+     * index. Fulltext is only used when EVERY token is indexable — at least
+     * FULLTEXT_MIN_TOKEN_LENGTH characters and not a stopword. MySQL silently
+     * skips tokens it won't index (too short, or a stopword like "the"), which
+     * would make a required `+token*` match nothing ("The Chronic") or weaken a
+     * multi-word search to its remaining words ("U2 War" → only "War"). In
+     * those cases null defers to LIKE, which matches the exact submitted text
+     * like the SQLite test path. Surviving tokens are required and
+     * prefix-matched, so "Miles Davis" needs both words while "Krau" still
+     * prefix-matches "Krautrock".
      */
-    private function booleanFullTextTerms(string $search): string
+    private function fullTextQuery(string $search): ?string
     {
         $tokens = preg_split('/[^\p{L}\p{N}]+/u', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
+        if ($tokens === []) {
+            return null;
+        }
+
+        foreach ($tokens as $token) {
+            if (mb_strlen($token) < self::FULLTEXT_MIN_TOKEN_LENGTH
+                || in_array(mb_strtolower($token), self::FULLTEXT_STOPWORDS, true)) {
+                return null;
+            }
+        }
+
         return collect($tokens)
-            ->filter(fn (string $word) => mb_strlen($word) >= self::FULLTEXT_MIN_TOKEN_LENGTH)
-            ->map(fn (string $word) => '+'.$word.'*')
+            ->map(fn (string $token) => '+'.$token.'*')
             ->implode(' ');
     }
 
