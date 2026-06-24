@@ -44,6 +44,30 @@ class CatalogTest extends TestCase
             ->assertSee('Some Record');
     }
 
+    public function test_search_matches_genre(): void
+    {
+        Record::factory()->create(['title' => 'Kind of Blue', 'genre' => 'Jazz']);
+        Record::factory()->create(['title' => 'Straight Outta Compton', 'genre' => 'Hip Hop']);
+
+        $this->get('/?search=Jazz')
+            ->assertOk()
+            ->assertSee('Kind of Blue')
+            ->assertDontSee('Straight Outta Compton');
+    }
+
+    public function test_search_matches_label(): void
+    {
+        // Label is not rendered on the card, so a match here proves the search
+        // reaches the label column (not a coincidental title/artist hit).
+        Record::factory()->create(['title' => 'Blue Train', 'label' => 'Impulse']);
+        Record::factory()->create(['title' => 'Thriller', 'label' => 'Epic']);
+
+        $this->get('/?search=Impulse')
+            ->assertOk()
+            ->assertSee('Blue Train')
+            ->assertDontSee('Thriller');
+    }
+
     public function test_grid_shows_cover_art_with_back_fallback(): void
     {
         // A record with a front cover, and one with only a back cover.
