@@ -188,6 +188,14 @@ class RecordController extends Controller
      */
     private function fullTextQuery(string $search): ?string
     {
+        // MySQL's fulltext parser treats "_" and "'" as word characters, so
+        // "foo_bar" / "don't" are single indexed tokens — but the split below
+        // breaks on them, producing tokens the index doesn't contain. Defer
+        // such searches to LIKE rather than build a query that can't match.
+        if (preg_match("/[_']/", $search) === 1) {
+            return null;
+        }
+
         $tokens = preg_split('/[^\p{L}\p{N}]+/u', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
         if ($tokens === []) {

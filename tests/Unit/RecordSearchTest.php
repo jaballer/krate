@@ -62,4 +62,14 @@ class RecordSearchTest extends TestCase
         $this->assertNull($this->build('&'));
         $this->assertNull($this->build('   '));
     }
+
+    public function test_underscore_and_apostrophe_defer_to_like(): void
+    {
+        // MySQL's parser keeps "_" and "'" inside a single token, so "foo_bar"
+        // is one indexed word; splitting on them would build "+foo* +bar*",
+        // which can't match. Defer to LIKE (both tokens here are otherwise
+        // long, non-stopwords, so only this rule sends them to LIKE).
+        $this->assertNull($this->build('foo_bar'));
+        $this->assertNull($this->build("rock'star"));
+    }
 }
