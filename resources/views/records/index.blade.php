@@ -20,6 +20,7 @@
                     name="search"
                     value="{{ $search }}"
                     placeholder="Search by title or artist…"
+                    aria-label="Search by title or artist"
                     class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:ring-gray-900"
                 >
                 <button type="submit" class="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
@@ -103,9 +104,9 @@
                         @php $cover = $record->front_image ?? $record->back_image; @endphp
                         @if ($cover)
                             <img src="{{ Storage::disk('public')->url($cover) }}"
-                                 alt="{{ $record->title }}" class="h-full w-full object-cover">
+                                 alt="{{ $record->title }} by {{ $record->artist }}" class="h-full w-full object-cover">
                         @else
-                            <div class="flex h-full w-full items-center justify-center text-6xl text-gray-300">&#9210;</div>
+                            <div class="flex h-full w-full items-center justify-center text-6xl text-gray-300" aria-hidden="true">&#9210;</div>
                         @endif
                     </div>
                     <div class="p-4">

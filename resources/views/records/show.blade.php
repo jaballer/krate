@@ -46,9 +46,9 @@
             <div class="aspect-square w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
                 @if ($front || $back)
                     {{-- Each side falls back to the other so a single available cover always shows. --}}
-                    <img :src="back ? @js($back ?? $front) : @js($front ?? $back)" alt="{{ $record->title }}" class="h-full w-full object-cover">
+                    <img :src="back ? @js($back ?? $front) : @js($front ?? $back)" alt="{{ $record->title }} by {{ $record->artist }}" class="h-full w-full object-cover">
                 @else
-                    <div class="flex h-full w-full items-center justify-center text-8xl text-gray-300">&#9210;</div>
+                    <div class="flex h-full w-full items-center justify-center text-8xl text-gray-300" aria-hidden="true">&#9210;</div>
                 @endif
             </div>
             @if ($front && $back)
