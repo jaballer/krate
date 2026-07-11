@@ -24,6 +24,12 @@ composer analyse               # Larastan / PHPStan (level 6)
 ddev npm run build             # build Vite assets (dev: ddev npm run dev)
 ```
 
+**Always** run Node/npm through DDEV (`ddev npm ...`), never the host `npm`.
+`node_modules` is installed for the container's platform (Linux arm64), so Vite's
+native Rolldown binding only matches inside DDEV — running `npm` on the macOS host
+fails with `Cannot find native binding`. Never run `npm install` on the host either;
+it overwrites `node_modules` with host binaries and breaks `ddev npm` in reverse.
+
 Tests are PHPUnit 12 (not Pest). `composer test` clears the config cache first,
 then runs `artisan test`.
 
