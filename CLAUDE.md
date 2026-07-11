@@ -36,10 +36,14 @@ plus the test suite.
 - **Models** (`app/Models`): mass-assignment via the `#[Fillable([...])]`
   attribute (not a `$fillable` array); typed columns via a `casts()` method;
   domain enums in `app/Enums` (`RecordFormat`, `RecordSpeed`, `RecordCondition`,
-  `UserRole`). `Record` maps to the `vinyl_records` table.
+  `UserRole`). `Record` maps to the `vinyl_records` table; `Track` maps to `tracks`.
+- **Entry types**: `Record` (vinyl, public catalog) and `Track` (a standalone,
+  admin-only track library — no Record FK, no public surface) are the two content
+  entities. `User` and `Setting` are not content. `Track` mirrors `Record`'s
+  Filament split-class layout under `app/Filament/Resources/Tracks/`.
 - **Public catalog**: `RecordController` (index/show) is **read-only**. All record
   writes go through Filament — never add public write routes. `Record` is the only
-  catalog entry type (`User` and `Setting` are not content). Search uses a FULLTEXT
+  *public* catalog entry type (`Track` is admin-only). Search uses a FULLTEXT
   `MATCH…AGAINST` index (`title/artist/genre/label`) on MariaDB/MySQL, with a
   hand-rolled LIKE fallback for SQLite (tests) and for terms the index can't
   represent (tokens < 3 chars, stopwords). All query input is whitelist-validated

@@ -1,0 +1,42 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class TrackSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $now = now();
+
+        $rows = [
+            [
+                'title' => 'Bring Da Ruckus', 'artist' => 'Wu-Tang Clan', 'album' => 'Enter the Wu-Tang (36 Chambers)',
+                'genre' => 'Hip Hop', 'release_year' => 1993, 'duration_seconds' => 251, 'bpm' => 88,
+                'audio_file_url' => 'https://example.com/wp-content/uploads/2024/09/Wu-Tang-Clan-Bring-Da-Ruckus.mp3',
+                'notes' => null,
+            ],
+            [
+                'title' => 'Doo Wop (That Thing)', 'artist' => 'Lauryn Hill', 'album' => 'The Miseducation of Lauryn Hill',
+                'genre' => 'Hip Hop', 'release_year' => 1998, 'duration_seconds' => 320, 'bpm' => 100,
+                'audio_file_url' => null,
+                'notes' => null,
+            ],
+            [
+                'title' => 'Cinematic Adventure', 'artist' => 'Sample Artist', 'album' => null,
+                'genre' => 'Hip Hop', 'release_year' => 2024, 'duration_seconds' => 198, 'bpm' => 98,
+                'audio_file_url' => 'https://example.com/wp-content/uploads/2024/06/Cinematic-Adventures.mp3',
+                'notes' => 'Instrumental sample track.',
+            ],
+        ];
+
+        foreach ($rows as &$row) {
+            $row['created_at'] = $now;
+            $row['updated_at'] = $now;
+        }
+
+        DB::table('tracks')->insert($rows);
+    }
+}
