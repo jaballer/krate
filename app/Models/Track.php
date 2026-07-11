@@ -27,4 +27,12 @@ class Track extends Model
             'bpm' => 'integer',
         ];
     }
+
+    /** Format a whole-second duration as m:ss (e.g. 214 → "3:34"); null when unset. */
+    public static function formatDuration(?int $seconds): ?string
+    {
+        return $seconds === null
+            ? null
+            : sprintf('%d:%02d', intdiv($seconds, 60), $seconds % 60);
+    }
 }

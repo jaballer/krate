@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tracks\Tables;
 
+use App\Models\Track;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -26,9 +27,7 @@ class TracksTable
                 TextColumn::make('duration_seconds')
                     ->label('Length')
                     // Stored as whole seconds; shown as m:ss (e.g. 214 -> "3:34").
-                    ->formatStateUsing(fn (?int $state): ?string => $state === null
-                        ? null
-                        : sprintf('%d:%02d', intdiv($state, 60), $state % 60)),
+                    ->formatStateUsing(fn (?int $state): ?string => Track::formatDuration($state)),
                 TextColumn::make('bpm')
                     ->numeric()
                     ->sortable(),

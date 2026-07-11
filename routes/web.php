@@ -2,12 +2,17 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
+use App\Http\Controllers\TrackController;
 use App\Models\Record;
 use Illuminate\Support\Facades\Route;
 
 // Public catalog (read-only)
 Route::get('/', [RecordController::class, 'index'])->name('records.index');
 Route::get('/records/{record}', [RecordController::class, 'show'])->name('records.show');
+
+// Public track library (read-only)
+Route::get('/tracks', [TrackController::class, 'index'])->name('tracks.index');
+Route::get('/tracks/{track}', [TrackController::class, 'show'])->name('tracks.show');
 
 // Post-login home. Staff are forwarded to the Filament admin panel; members
 // get their own landing page. Keeping the redirect here means every auth flow
