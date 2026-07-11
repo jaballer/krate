@@ -217,6 +217,8 @@ class RecordController extends Controller
     /** Public record detail. */
     public function show(Record $record): View
     {
+        $record->load('tracks');
+
         return view('records.show', compact('record'));
     }
 }

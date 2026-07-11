@@ -4,9 +4,11 @@ namespace Tests\Feature;
 
 use App\Enums\RecordCondition;
 use App\Enums\RecordFormat;
+use App\Enums\TrackSide;
 use App\Enums\UserRole;
 use App\Filament\Resources\Records\RecordResource;
 use App\Models\Record;
+use App\Models\Track;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -312,5 +314,28 @@ class CatalogTest extends TestCase
             ->assertOk()
             ->assertSee('Real Genre Record')
             ->assertSee('Blank Genre Record');
+    }
+
+    public function test_record_detail_shows_its_tracklist_in_order(): void
+    {
+        $record = Record::factory()->create();
+        // Created out of order; the tracklist should render A1 before A2.
+        Track::factory()->forRecord($record, TrackSide::A, 2)->create(['title' => 'Second Track']);
+        $first = Track::factory()->forRecord($record, TrackSide::A, 1)->create(['title' => 'First Track']);
+
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSee('Tracklist')
+            ->assertSeeInOrder(['First Track', 'Second Track'])
+            ->assertSee(route('tracks.show', $first), false); // each track links to its page
+    }
+
+    public function test_record_without_tracks_has_no_tracklist_section(): void
+    {
+        $record = Record::factory()->create();
+
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertDontSee('Tracklist');
     }
 }

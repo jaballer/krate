@@ -2,6 +2,7 @@
 
 @use('Illuminate\Support\Facades\Storage')
 @use('App\Filament\Resources\Records\RecordResource')
+@use('App\Models\Track')
 
 @section('title', e($record->title).' — '.config('krate.site.name', 'Krate'))
 
@@ -108,4 +109,37 @@
             @endif
         </div>
     </div>
+
+    @if ($record->tracks->isNotEmpty())
+        <section class="mt-12">
+            <h2 class="text-lg font-semibold tracking-tight">Tracklist</h2>
+            <div class="mt-4 divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white">
+                {{-- Tracks arrive pre-ordered by side then position (Record::tracks). --}}
+                @foreach ($record->tracks->groupBy(fn ($t) => $t->side?->value) as $side => $sideTracks)
+                    @if ($side)
+                        <h3 class="bg-gray-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Side {{ $side }}</h3>
+                    @endif
+                    @foreach ($sideTracks as $track)
+                        <a href="{{ route('tracks.show', $track) }}"
+                           class="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-gray-50">
+                            <div class="flex min-w-0 items-baseline gap-3">
+                                @if ($track->position)
+                                    <span class="w-6 shrink-0 tabular-nums text-sm text-gray-400">{{ $track->position }}</span>
+                                @endif
+                                <span class="truncate font-medium text-gray-900">{{ $track->title }}</span>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-3 text-sm text-gray-500">
+                                @if ($track->bpm)
+                                    <span class="hidden sm:inline">{{ $track->bpm }} BPM</span>
+                                @endif
+                                @if ($length = Track::formatDuration($track->duration_seconds))
+                                    <span class="tabular-nums">{{ $length }}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @endforeach
+                @endforeach
+            </div>
+        </section>
+    @endif
 @endsection
