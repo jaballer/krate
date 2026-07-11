@@ -11,11 +11,13 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,6 +38,11 @@ class TracksRelationManager extends RelationManager
                     ->required(),
                 TextInput::make('artist')
                     ->required(),
+                FileUpload::make('image')
+                    ->image()
+                    ->maxSize(5120)
+                    ->disk('public')
+                    ->directory('tracks'),
                 Select::make('side')
                     ->options(TrackSide::class),
                 TextInput::make('position')
@@ -56,6 +63,8 @@ class TracksRelationManager extends RelationManager
     {
         return $table
             ->columns([
+                ImageColumn::make('image')
+                    ->disk('public'),
                 TextColumn::make('side')
                     ->badge(),
                 TextColumn::make('position')

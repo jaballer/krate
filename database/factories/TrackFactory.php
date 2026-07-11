@@ -24,6 +24,7 @@ class TrackFactory extends Factory
         return [
             'title' => fake()->sentence(3),
             'artist' => fake()->name(),
+            'image' => null,
             'album' => fake()->optional()->sentence(2),
             'genre' => fake()->randomElement(['Hip Hop', 'Rap', 'Jazz', 'Soul', 'Funk']),
             'release_year' => fake()->numberBetween(1960, 2025),
