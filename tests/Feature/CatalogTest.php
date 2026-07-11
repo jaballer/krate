@@ -330,6 +330,19 @@ class CatalogTest extends TestCase
             ->assertSee(route('tracks.show', $first), false); // each track links to its page
     }
 
+    public function test_record_tracklist_shows_track_artwork(): void
+    {
+        $record = Record::factory()->create();
+        Track::factory()->forRecord($record, TrackSide::A, 1)->create([
+            'title' => 'Art Track',
+            'image' => 'tracks/cover.jpg',
+        ]);
+
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSee('tracks/cover.jpg');
+    }
+
     public function test_record_without_tracks_has_no_tracklist_section(): void
     {
         $record = Record::factory()->create();
