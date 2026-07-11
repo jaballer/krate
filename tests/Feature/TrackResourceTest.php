@@ -99,4 +99,20 @@ class TrackResourceTest extends TestCase
 
         $this->assertModelMissing($track);
     }
+
+    public function test_edit_page_links_to_the_public_track_page(): void
+    {
+        $admin = User::factory()->administrator()->create();
+        $track = Track::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(EditTrack::class, ['record' => $track->getRouteKey()])
+            ->assertActionExists('viewOnSite');
+
+        // The action renders as a real link to the public detail page.
+        $this->actingAs($admin)
+            ->get("/admin/tracks/{$track->getKey()}/edit")
+            ->assertOk()
+            ->assertSee(route('tracks.show', $track), false);
+    }
 }
