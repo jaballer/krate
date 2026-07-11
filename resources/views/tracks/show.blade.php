@@ -39,7 +39,7 @@
         <dl class="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             @php
                 $facts = array_filter([
-                    'Album' => $track->album,
+                    'Album' => $track->displayAlbum(),
                     'Genre' => $track->genre,
                     'Year' => $track->release_year,
                     'Length' => Track::formatDuration($track->duration_seconds),

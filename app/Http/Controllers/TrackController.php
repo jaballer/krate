@@ -44,6 +44,8 @@ class TrackController extends Controller
         [$sortColumn, $sortDirection] = self::SORTS[$sort];
 
         $tracks = Track::query()
+            // Eager-load the record so displayAlbum() in the list view doesn't N+1.
+            ->with('record')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     foreach (self::SEARCH_COLUMNS as $i => $column) {

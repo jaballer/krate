@@ -69,8 +69,9 @@
                        class="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-gray-50">
                         <div class="min-w-0">
                             <p class="truncate font-semibold text-gray-900">{{ $track->title }}</p>
+                            @php $albumLabel = $track->displayAlbum(); @endphp
                             <p class="truncate text-sm text-gray-600">
-                                {{ $track->artist }}@if ($track->album) &middot; {{ $track->album }}@endif
+                                {{ $track->artist }}@if ($albumLabel) &middot; {{ $albumLabel }}@endif
                             </p>
                         </div>
                         <div class="flex shrink-0 items-center gap-3 text-sm text-gray-500">

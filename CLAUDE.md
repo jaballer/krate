@@ -37,13 +37,18 @@ plus the test suite.
   attribute (not a `$fillable` array); typed columns via a `casts()` method;
   domain enums in `app/Enums` (`RecordFormat`, `RecordSpeed`, `RecordCondition`,
   `UserRole`). `Record` maps to the `vinyl_records` table; `Track` maps to `tracks`.
-- **Entry types**: `Record` (vinyl, public catalog) and `Track` (a standalone,
-  admin-only track library — no Record FK, no public surface) are the two content
-  entities. `User` and `Setting` are not content. `Track` mirrors `Record`'s
-  Filament split-class layout under `app/Filament/Resources/Tracks/`.
-- **Public catalog**: `RecordController` (index/show) is **read-only**. All record
-  writes go through Filament — never add public write routes. `Record` is the only
-  *public* catalog entry type (`Track` is admin-only). Search uses a FULLTEXT
+- **Entry types**: `Record` (vinyl catalog) and `Track` (a track library) are the
+  two content entities; both have a public read-only surface and a Filament
+  split-class resource (`app/Filament/Resources/{Records,Tracks}/`). `User` and
+  `Setting` are not content. A `Track` **optionally** belongs to a `Record`
+  (nullable `tracks.record_id`, `nullOnDelete`): `Record::tracks()` is the
+  tracklist (ordered by `side` then `position`, `TrackSide` enum A–D), `Track::record()`
+  the inverse. A track with a null `record_id` is standalone. Staff manage a
+  record's tracklist via the `TracksRelationManager` on the Record edit page, or
+  set the record from the Track form's record picker.
+- **Public catalog**: `RecordController` and `TrackController` (index/show) are
+  **read-only**. All writes go through Filament — never add public write routes.
+  Record search uses a FULLTEXT
   `MATCH…AGAINST` index (`title/artist/genre/label`) on MariaDB/MySQL, with a
   hand-rolled LIKE fallback for SQLite (tests) and for terms the index can't
   represent (tokens < 3 chars, stopwords). All query input is whitelist-validated

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\Tracks\Pages\CreateTrack;
 use App\Filament\Resources\Tracks\Pages\EditTrack;
+use App\Models\Record;
 use App\Models\Track;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
@@ -98,6 +99,27 @@ class TrackResourceTest extends TestCase
             ->callAction(DeleteAction::class);
 
         $this->assertModelMissing($track);
+    }
+
+    public function test_staff_can_link_a_track_to_a_record_from_the_track_form(): void
+    {
+        $admin = User::factory()->administrator()->create();
+        $record = Record::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(CreateTrack::class)
+            ->fillForm([
+                'title' => 'Impossible',
+                'artist' => 'Wu-Tang Clan',
+                'record_id' => $record->id,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('tracks', [
+            'title' => 'Impossible',
+            'record_id' => $record->id,
+        ]);
     }
 
     public function test_edit_page_links_to_the_public_track_page(): void
