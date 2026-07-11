@@ -113,6 +113,9 @@
     @if ($record->tracks->isNotEmpty())
         <section class="mt-12">
             <h2 class="text-lg font-semibold tracking-tight">Tracklist</h2>
+            {{-- Reserve a thumbnail slot only when at least one track has artwork,
+                 so an all-imageless tracklist stays compact and titles still align. --}}
+            @php $hasArtwork = $record->tracks->contains(fn ($t) => filled($t->image)); @endphp
             <div class="mt-4 divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white">
                 {{-- Tracks arrive pre-ordered by side then position (Record::tracks). --}}
                 @foreach ($record->tracks->groupBy(fn ($t) => $t->side?->value) as $side => $sideTracks)
@@ -122,9 +125,18 @@
                     @foreach ($sideTracks as $track)
                         <a href="{{ route('tracks.show', $track) }}"
                            class="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-gray-50">
-                            <div class="flex min-w-0 items-baseline gap-3">
+                            <div class="flex min-w-0 items-center gap-3">
                                 @if ($track->position)
                                     <span class="w-6 shrink-0 tabular-nums text-sm text-gray-400">{{ $track->position }}</span>
+                                @endif
+                                @if ($hasArtwork)
+                                    <div class="h-9 w-9 shrink-0 overflow-hidden rounded bg-gray-100">
+                                        @if ($track->image)
+                                            <img src="{{ Storage::disk('public')->url($track->image) }}"
+                                                 alt="" class="h-full w-full object-cover"
+                                                 width="36" height="36" loading="lazy" decoding="async">
+                                        @endif
+                                    </div>
                                 @endif
                                 <span class="truncate font-medium text-gray-900">{{ $track->title }}</span>
                             </div>

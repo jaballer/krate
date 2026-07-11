@@ -1,5 +1,6 @@
 @extends('layouts.public')
 
+@use('Illuminate\Support\Facades\Storage')
 @use('App\Models\Track')
 
 @section('title', 'Tracks — '.config('krate.site.name', 'Krate'))
@@ -67,12 +68,21 @@
                 <li>
                     <a href="{{ route('tracks.show', $track) }}"
                        class="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-gray-50">
-                        <div class="min-w-0">
-                            <p class="truncate font-semibold text-gray-900">{{ $track->title }}</p>
-                            @php $albumLabel = $track->displayAlbum(); @endphp
-                            <p class="truncate text-sm text-gray-600">
-                                {{ $track->artist }}@if ($albumLabel) &middot; {{ $albumLabel }}@endif
-                            </p>
+                        <div class="flex min-w-0 items-center gap-3">
+                            <div class="h-10 w-10 shrink-0 overflow-hidden rounded bg-gray-100">
+                                @if ($track->image)
+                                    <img src="{{ Storage::disk('public')->url($track->image) }}"
+                                         alt="" class="h-full w-full object-cover"
+                                         width="40" height="40" loading="lazy" decoding="async">
+                                @endif
+                            </div>
+                            <div class="min-w-0">
+                                <p class="truncate font-semibold text-gray-900">{{ $track->title }}</p>
+                                @php $albumLabel = $track->displayAlbum(); @endphp
+                                <p class="truncate text-sm text-gray-600">
+                                    {{ $track->artist }}@if ($albumLabel) &middot; {{ $albumLabel }}@endif
+                                </p>
+                            </div>
                         </div>
                         <div class="flex shrink-0 items-center gap-3 text-sm text-gray-500">
                             @if ($length = Track::formatDuration($track->duration_seconds))

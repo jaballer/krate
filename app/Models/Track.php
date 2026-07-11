@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
-    'record_id', 'title', 'artist', 'album', 'side', 'position', 'genre',
+    'record_id', 'title', 'artist', 'image', 'album', 'side', 'position', 'genre',
     'release_year', 'duration_seconds', 'bpm', 'audio_file_url', 'notes',
 ])]
 class Track extends Model

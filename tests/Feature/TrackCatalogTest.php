@@ -146,6 +146,14 @@ class TrackCatalogTest extends TestCase
         $this->get('/')->assertOk()->assertSee(route('tracks.index'), false);
     }
 
+    public function test_track_image_is_shown_on_the_index_and_detail(): void
+    {
+        $track = Track::factory()->create(['title' => 'Imaged Track', 'image' => 'tracks/art.jpg']);
+
+        $this->get('/tracks')->assertOk()->assertSee('tracks/art.jpg');
+        $this->get(route('tracks.show', $track))->assertOk()->assertSee('tracks/art.jpg');
+    }
+
     public function test_a_linked_track_links_back_to_its_record(): void
     {
         $record = Record::factory()->create(['title' => 'Enter the Wu-Tang (36 Chambers)']);
