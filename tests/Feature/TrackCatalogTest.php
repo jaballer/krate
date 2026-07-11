@@ -154,6 +154,25 @@ class TrackCatalogTest extends TestCase
         $this->get(route('tracks.show', $track))->assertOk()->assertSee('tracks/art.jpg');
     }
 
+    public function test_tracks_without_an_image_show_the_placeholder(): void
+    {
+        $track = Track::factory()->create(['image' => null]);
+
+        // Both the list thumbnail and the detail artwork fall back to the placeholder.
+        $this->get('/tracks')->assertOk()->assertSee('images/placeholders/square.svg');
+        $this->get(route('tracks.show', $track))->assertOk()->assertSee('images/placeholders/square.svg');
+    }
+
+    public function test_a_track_with_an_image_does_not_show_the_placeholder(): void
+    {
+        $track = Track::factory()->create(['image' => 'tracks/real.jpg']);
+
+        $this->get(route('tracks.show', $track))
+            ->assertOk()
+            ->assertSee('tracks/real.jpg')
+            ->assertDontSee('images/placeholders/square.svg');
+    }
+
     public function test_a_linked_track_links_back_to_its_record(): void
     {
         $record = Record::factory()->create(['title' => 'Enter the Wu-Tang (36 Chambers)']);

@@ -316,6 +316,27 @@ class CatalogTest extends TestCase
             ->assertSee('Blank Genre Record');
     }
 
+    public function test_records_without_a_cover_show_the_placeholder_image(): void
+    {
+        $record = Record::factory()->create(['front_image' => null, 'back_image' => null]);
+
+        // Both the grid and the detail page fall back to the placeholder asset.
+        $this->get('/')->assertOk()->assertSee('images/placeholders/square.svg');
+        $this->get(route('records.show', $record))->assertOk()->assertSee('images/placeholders/square.svg');
+    }
+
+    public function test_a_record_with_a_cover_does_not_show_the_placeholder(): void
+    {
+        $record = Record::factory()->create(['front_image' => 'records/real-cover.jpg']);
+
+        // The detail page emits the cover URL via Alpine's @js() (slashes are
+        // JSON-escaped), so match the filename rather than the slashed path.
+        $this->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSee('real-cover.jpg')
+            ->assertDontSee('images/placeholders/square.svg');
+    }
+
     public function test_record_detail_shows_its_tracklist_in_order(): void
     {
         $record = Record::factory()->create();

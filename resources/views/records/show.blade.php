@@ -49,7 +49,7 @@
                     {{-- Each side falls back to the other so a single available cover always shows. --}}
                     <img :src="back ? @js($back ?? $front) : @js($front ?? $back)" alt="{{ $record->title }}" class="h-full w-full object-cover">
                 @else
-                    <div class="flex h-full w-full items-center justify-center text-8xl text-gray-300">&#9210;</div>
+                    <x-placeholder-image :alt="$record->title" />
                 @endif
             </div>
             @if ($front && $back)
@@ -135,6 +135,8 @@
                                             <img src="{{ Storage::disk('public')->url($track->image) }}"
                                                  alt="" class="h-full w-full object-cover"
                                                  width="36" height="36" loading="lazy" decoding="async">
+                                        @else
+                                            <x-placeholder-image />
                                         @endif
                                     </div>
                                 @endif

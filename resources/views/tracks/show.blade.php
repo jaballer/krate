@@ -34,13 +34,15 @@
     </div>
 
     <div class="mx-auto max-w-2xl">
-        @if ($track->image)
-            <div class="mb-6 aspect-square w-full max-w-xs overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+        <div class="mb-6 aspect-square w-full max-w-xs overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+            @if ($track->image)
                 <img src="{{ Storage::disk('public')->url($track->image) }}"
                      alt="{{ $track->title }}" class="h-full w-full object-cover"
                      width="600" height="600" decoding="async">
-            </div>
-        @endif
+            @else
+                <x-placeholder-image :alt="$track->title" />
+            @endif
+        </div>
 
         <h1 class="text-2xl font-bold tracking-tight">{{ $track->title }}</h1>
         <p class="mt-1 text-lg text-gray-600">{{ $track->artist }}</p>
