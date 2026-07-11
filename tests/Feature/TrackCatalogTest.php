@@ -146,6 +146,26 @@ class TrackCatalogTest extends TestCase
         $this->get('/')->assertOk()->assertSee(route('tracks.index'), false);
     }
 
+    public function test_a_linked_track_links_back_to_its_record(): void
+    {
+        $record = Record::factory()->create(['title' => 'Enter the Wu-Tang (36 Chambers)']);
+        $track = Track::factory()->forRecord($record, TrackSide::A, 1)->create();
+
+        $this->get(route('tracks.show', $track))
+            ->assertOk()
+            ->assertSee('Enter the Wu-Tang (36 Chambers)')
+            ->assertSee(route('records.show', $record), false);
+    }
+
+    public function test_a_standalone_track_has_no_record_back_link(): void
+    {
+        $track = Track::factory()->create(['album' => 'Solo LP', 'record_id' => null]);
+
+        $this->get(route('tracks.show', $track))
+            ->assertOk()
+            ->assertSee('Solo LP'); // free-text album still shown as the fallback
+    }
+
     public function test_a_linked_track_shows_the_record_title_not_a_stale_album(): void
     {
         $record = Record::factory()->create(['title' => 'Enter the Wu-Tang (36 Chambers)']);

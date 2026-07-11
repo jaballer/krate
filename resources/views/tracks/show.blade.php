@@ -36,10 +36,20 @@
         <h1 class="text-2xl font-bold tracking-tight">{{ $track->title }}</h1>
         <p class="mt-1 text-lg text-gray-600">{{ $track->artist }}</p>
 
+        @if ($track->record)
+            <p class="mt-2 text-sm">
+                <a href="{{ route('records.show', $track->record) }}" class="text-gray-500 hover:text-gray-900">
+                    From <span class="font-medium text-gray-700">{{ $track->record->title }}</span> &rarr;
+                </a>
+            </p>
+        @endif
+
         <dl class="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             @php
                 $facts = array_filter([
-                    'Album' => $track->displayAlbum(),
+                    // Linked tracks show the record via the "From …" link above;
+                    // the free-text album is only a standalone fallback here.
+                    'Album' => $track->record ? null : $track->album,
                     'Genre' => $track->genre,
                     'Year' => $track->release_year,
                     'Length' => Track::formatDuration($track->duration_seconds),
