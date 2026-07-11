@@ -15,6 +15,11 @@
                 Catalog
             </a>
 
+            <a href="{{ route('tracks.index') }}"
+               class="{{ request()->routeIs('tracks.*') ? 'font-medium text-gray-900' : 'text-gray-600 hover:text-gray-900' }}">
+                Tracks
+            </a>
+
             @auth
                 @if ($isStaff)
                     <a href="/admin"
