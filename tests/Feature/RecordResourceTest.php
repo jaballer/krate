@@ -102,4 +102,20 @@ class RecordResourceTest extends TestCase
 
         $this->assertModelMissing($record);
     }
+
+    public function test_edit_page_links_to_the_public_record_page(): void
+    {
+        $admin = User::factory()->administrator()->create();
+        $record = Record::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(EditRecord::class, ['record' => $record->getRouteKey()])
+            ->assertActionExists('viewOnSite');
+
+        // The action renders as a real link to the public detail page.
+        $this->actingAs($admin)
+            ->get("/admin/records/{$record->getKey()}/edit")
+            ->assertOk()
+            ->assertSee(route('records.show', $record), false);
+    }
 }
