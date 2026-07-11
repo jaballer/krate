@@ -43,6 +43,20 @@ class Track extends Model
         return $this->belongsTo(Record::class);
     }
 
+    /**
+     * Album label for display: the linked record's title takes precedence, so a
+     * stale free-text `album` never shows once a track belongs to a record. The
+     * `album` string is the fallback for standalone (record-less) tracks.
+     */
+    public function displayAlbum(): ?string
+    {
+        // record_id is nulled when a record is deleted (nullOnDelete), so a
+        // non-null id always resolves to an existing record.
+        return $this->record_id !== null
+            ? $this->record->title
+            : $this->album;
+    }
+
     /** Format a whole-second duration as m:ss (e.g. 214 → "3:34"); null when unset. */
     public static function formatDuration(?int $seconds): ?string
     {

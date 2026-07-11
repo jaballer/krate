@@ -62,4 +62,24 @@ class TracksRelationManagerTest extends TestCase
             'position' => 2,
         ]);
     }
+
+    public function test_associate_cannot_steal_a_track_from_another_record(): void
+    {
+        $admin = User::factory()->administrator()->create();
+        $recordA = Record::factory()->create();
+        $recordB = Record::factory()->create();
+        $linkedToB = Track::factory()->forRecord($recordB, TrackSide::A, 1)->create();
+
+        // The associate picker is scoped to standalone tracks, so a track already
+        // on record B is not a valid option and can't be reassigned to record A.
+        Livewire::actingAs($admin)
+            ->test(TracksRelationManager::class, [
+                'ownerRecord' => $recordA,
+                'pageClass' => EditRecord::class,
+            ])
+            ->callTableAction('associate', data: ['recordId' => $linkedToB->id])
+            ->assertHasTableActionErrors();
+
+        $this->assertDatabaseHas('tracks', ['id' => $linkedToB->id, 'record_id' => $recordB->id]);
+    }
 }

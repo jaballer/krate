@@ -18,6 +18,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TracksRelationManager extends RelationManager
 {
@@ -71,7 +72,10 @@ class TracksRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                // Only offer unlinked tracks — associating a track already on
+                // another record would silently steal it from that tracklist.
+                AssociateAction::make()
+                    ->recordSelectOptionsQuery(fn (Builder $query) => $query->whereNull('record_id')),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -46,6 +46,16 @@ class TrackRecordRelationshipTest extends TestCase
         $this->assertCount(1, $record->tracks);
     }
 
+    public function test_display_album_prefers_the_linked_record_title(): void
+    {
+        $record = Record::factory()->create(['title' => 'The Album']);
+        $linked = Track::factory()->forRecord($record, TrackSide::A, 1)->create(['album' => 'stale text']);
+        $standalone = Track::factory()->create(['album' => 'Solo LP']);
+
+        $this->assertSame('The Album', $linked->displayAlbum());
+        $this->assertSame('Solo LP', $standalone->displayAlbum());
+    }
+
     public function test_deleting_a_record_orphans_its_tracks_rather_than_deleting_them(): void
     {
         $record = Record::factory()->create();

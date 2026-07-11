@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Enums\TrackSide;
 use App\Enums\UserRole;
 use App\Filament\Resources\Tracks\TrackResource;
+use App\Models\Record;
 use App\Models\Track;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -142,5 +144,25 @@ class TrackCatalogTest extends TestCase
     public function test_tracks_appear_in_the_site_navigation(): void
     {
         $this->get('/')->assertOk()->assertSee(route('tracks.index'), false);
+    }
+
+    public function test_a_linked_track_shows_the_record_title_not_a_stale_album(): void
+    {
+        $record = Record::factory()->create(['title' => 'Enter the Wu-Tang (36 Chambers)']);
+        $track = Track::factory()->forRecord($record, TrackSide::A, 1)->create([
+            'title' => 'Bring Da Ruckus',
+            'album' => 'Stale Album Name',
+        ]);
+
+        // Both public surfaces prefer the record title; the stale album never shows.
+        $this->get('/tracks')
+            ->assertOk()
+            ->assertSee('Enter the Wu-Tang (36 Chambers)')
+            ->assertDontSee('Stale Album Name');
+
+        $this->get(route('tracks.show', $track))
+            ->assertOk()
+            ->assertSee('Enter the Wu-Tang (36 Chambers)')
+            ->assertDontSee('Stale Album Name');
     }
 }
