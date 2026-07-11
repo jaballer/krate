@@ -81,6 +81,18 @@ class CatalogTest extends TestCase
             ->assertSee('back-art.jpg');   // back-only record falls back to its back cover
     }
 
+    public function test_grid_covers_reserve_space_and_lazy_load(): void
+    {
+        // Four covers so at least one falls outside the eager first row (3 cols).
+        Record::factory()->count(4)->create(['front_image' => 'records/art.jpg']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('width="600" height="600"', false) // explicit dimensions avoid CLS
+            ->assertSee('fetchpriority="high"', false)     // first row is eager for LCP
+            ->assertSee('loading="lazy"', false);          // off-screen covers defer
+    }
+
     public function test_record_detail_is_shown(): void
     {
         $record = Record::factory()->create(['title' => 'The Chronic', 'artist' => 'Dr. Dre']);

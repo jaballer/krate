@@ -102,8 +102,11 @@
                     <div class="aspect-square w-full bg-gray-100">
                         @php $cover = $record->front_image ?? $record->back_image; @endphp
                         @if ($cover)
+                            {{-- First row (up to 3 cols) loads eagerly for LCP; the rest lazy-load. --}}
                             <img src="{{ Storage::disk('public')->url($cover) }}"
-                                 alt="{{ $record->title }}" class="h-full w-full object-cover">
+                                 alt="{{ $record->title }}" class="h-full w-full object-cover"
+                                 width="600" height="600" decoding="async"
+                                 @if ($loop->index < 3) fetchpriority="high" @else loading="lazy" @endif>
                         @else
                             <div class="flex h-full w-full items-center justify-center text-6xl text-gray-300">&#9210;</div>
                         @endif
