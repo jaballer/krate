@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Records;
 use App\Filament\Resources\Records\Pages\CreateRecord;
 use App\Filament\Resources\Records\Pages\EditRecord;
 use App\Filament\Resources\Records\Pages\ListRecords;
+use App\Filament\Resources\Records\RelationManagers\TracksRelationManager;
 use App\Filament\Resources\Records\Schemas\RecordForm;
 use App\Filament\Resources\Records\Tables\RecordsTable;
 use App\Models\Record;
@@ -33,7 +34,7 @@ class RecordResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TracksRelationManager::class,
         ];
     }
 

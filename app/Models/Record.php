@@ -9,6 +9,7 @@ use Database\Factories\RecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'title', 'artist', 'genre', 'release_year', 'label', 'catalog_number',
@@ -36,5 +37,18 @@ class Record extends Model
             'speed' => RecordSpeed::class,
             'condition' => RecordCondition::class,
         ];
+    }
+
+    /**
+     * This record's tracklist, pre-ordered by side then position.
+     *
+     * @return HasMany<Track, $this>
+     */
+    public function tracks(): HasMany
+    {
+        return $this->hasMany(Track::class)
+            ->orderBy('side')
+            ->orderBy('position')
+            ->orderBy('id');
     }
 }

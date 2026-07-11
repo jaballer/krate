@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Tracks\Schemas;
 
+use App\Enums\TrackSide;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -16,7 +18,19 @@ class TrackForm
                     ->required(),
                 TextInput::make('artist')
                     ->required(),
-                TextInput::make('album'),
+                // Optional link to a record. When set, side/position place the
+                // track on that record's tracklist.
+                Select::make('record_id')
+                    ->label('Record')
+                    ->relationship('record', 'title')
+                    ->searchable()
+                    ->preload(),
+                Select::make('side')
+                    ->options(TrackSide::class),
+                TextInput::make('position')
+                    ->numeric(),
+                TextInput::make('album')
+                    ->helperText('Free-text album name, used when the track is not linked to a record.'),
                 TextInput::make('genre'),
                 TextInput::make('release_year')
                     ->numeric(),
