@@ -17,11 +17,15 @@ Local dev runs in **DDEV**. Prefix PHP/Composer/Node commands with `ddev exec`,
 `ddev composer`, `ddev npm` (the host has no PHP 8.3):
 
 ```bash
-ddev exec php artisan test     # full suite (also: composer test)
+ddev exec php artisan test                       # full suite (also: composer test)
+ddev exec php artisan test --filter=RecordResourceTest   # single test class/method
 composer lint                  # Pint format-fix  (composer lint:test = check only)
 composer analyse               # Larastan / PHPStan (level 6)
 ddev npm run build             # build Vite assets (dev: ddev npm run dev)
 ```
+
+Tests are PHPUnit 12 (not Pest). `composer test` clears the config cache first,
+then runs `artisan test`.
 
 Always run `composer lint` and `composer analyse` before considering a change
 done — CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) enforces both
@@ -34,7 +38,23 @@ plus the test suite.
   domain enums in `app/Enums` (`RecordFormat`, `RecordSpeed`, `RecordCondition`,
   `UserRole`). `Record` maps to the `vinyl_records` table.
 - **Public catalog**: `RecordController` (index/show) is **read-only**. All record
-  writes go through Filament — never add public write routes.
+  writes go through Filament — never add public write routes. `Record` is the only
+  catalog entry type (`User` and `Setting` are not content). Search uses a FULLTEXT
+  `MATCH…AGAINST` index (`title/artist/genre/label`) on MariaDB/MySQL, with a
+  hand-rolled LIKE fallback for SQLite (tests) and for terms the index can't
+  represent (tokens < 3 chars, stopwords). All query input is whitelist-validated
+  (enum `tryFrom`, keyed sort map) — keep this public endpoint injection-safe.
+- **Settings**: `Setting` is a typed key-value store; read via
+  `Setting::getValue($key, $default)` (coerced by `setting_type`), edited through the
+  Filament `SettingResource`. `SocialLinksService` reads social URLs from it. A
+  separate `config/krate.php` namespace holds app config (`krate.admin_notification_emails`,
+  `krate.site.name`).
+- **Auth events / email**: both surfaces share the `web` guard, so the `Login` event
+  fires for members and staff alike. `SendAdminLoginAlert` (auto-discovered listener)
+  filters to staff sign-ins and sends the queued `AdminLoginAlert` notification via
+  **Postmark** (`symfony/postmark-mailer`); mail failures are caught + `report()`ed so
+  auth never breaks. `GET /dashboard` redirects staff to `/admin` and shows members
+  their own view.
 - **Filament**: resources live under `app/Filament/Resources/<Model>/` (schema,
   table, and pages split into their own classes, per Filament 5 conventions).
 - **Tests** (`tests/Feature`, PHPUnit): use `RefreshDatabase` on SQLite
