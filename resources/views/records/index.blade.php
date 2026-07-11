@@ -108,7 +108,7 @@
                                  width="600" height="600" decoding="async"
                                  @if ($loop->index < 3) fetchpriority="high" @else loading="lazy" @endif>
                         @else
-                            <div class="flex h-full w-full items-center justify-center text-6xl text-gray-300">&#9210;</div>
+                            <x-placeholder-image :alt="$record->title" />
                         @endif
                     </div>
                     <div class="p-4">

@@ -74,6 +74,8 @@
                                     <img src="{{ Storage::disk('public')->url($track->image) }}"
                                          alt="" class="h-full w-full object-cover"
                                          width="40" height="40" loading="lazy" decoding="async">
+                                @else
+                                    <x-placeholder-image />
                                 @endif
                             </div>
                             <div class="min-w-0">
